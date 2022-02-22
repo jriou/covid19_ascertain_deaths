@@ -1,0 +1,203 @@
+---
+title: Ascertainment of laboratoy-confirmed COVID-19 deaths in Switzerland until January 2022
+date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+subtitle: Julien Riou (1,2,*), Anthony Hauser (1,2), Garyfallos Konstantinoudis (3) ^[(1) Institute of Social and Preventive Medicine, University of Bern, Switzerland.
+  (2) Federal Office of Public Health, Switzerland. (3) MRC Centre for Environment and Health, Department of Epidemiology and Biostatistics, School of Public Health, Imperial College London, London, UK. *julien.riou@ispm.unibe.ch]
+bibliography: bibliography.bib
+csl: ieee.csl
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("main.R")
+```
+
+
+
+# Summary
+
+
+**Background.** 
+
+**Methods.** 
+
+**Results.** 
+
+**Conclusions.** 
+
+# Introduction
+
+- Two ways to estimate the global impact of covid-19 in terms of mortality.
+
+- Excess mortality: assumptions, advantages and limitations
+
+- Mandatory reporting of laboratory-confirmed deaths
+
+- Public debate in Switzerland
+
+- Problems with BFS method
+
+- Aims
+
+# Methods
+
+## Reporting of laboratory-confirmed deaths in CH
+
+## Statistical model 
+
+- Nature Com [@konstantinoudis2022regional]
+
+- 95% CrI
+
+## Metrics
+
+- Full propagation of uncertainty
+
+- Define current excess (lower bound 95% CrI > 0)
+
+- Coverage (laboratory-confirmed deaths within the 95% CrI of excess)
+
+- Absolute difference (excess - laboratory-confirmed deaths, with 95% CrI)
+
+- Ascertainment of deaths (laboratory-confirmed deaths / excess, with 95% CrI), assuming that excess is only due to COVID-19
+
+
+# Results
+
+
+```{r tab1}
+t1a = summ_phase_base %>% 
+  dplyr::transmute(phase=as.character(phase),
+                   labo_deaths,
+                   excess=qsum(excess_med,excess_lob,excess_upb)) %>% 
+  dplyr::bind_rows(
+    summ_all_base %>% 
+      dplyr::transmute(phase="Total",
+                       labo_deaths,
+                       excess=qsum(excess_med,excess_lob,excess_upb)))
+
+t1b = summ_phase_temp %>% 
+  dplyr::filter(phase!=7) %>% 
+  dplyr::transmute(phase=as.character(phase),
+                   excess_temp=qsum(excess_med,excess_lob,excess_upb)) %>% 
+  dplyr::bind_rows(
+    summ_all_temp %>% 
+      dplyr::transmute(phase="Total",
+                       excess_temp=qsum(excess_med,excess_lob,excess_upb)))
+
+dplyr::right_join(date_phases,t1a,by = "phase") %>% 
+  dplyr::left_join(t1b,by = "phase") %>% 
+  flextable() %>% 
+  set_table_properties(layout="autofit") %>% 
+  set_header_labels(phase="Phase",
+                    start_date="Start",
+                    end_date="End",
+                    labo_deaths="Laboratory-confirmed deaths",
+                    excess="Excess deaths (95% CrI)",
+                    excess_temp="Excess deaths, accounting for temperature (95% CrI)")
+
+
+
+```
+
+```{r fig_desc, fig.width=6, fig.height=2.5}
+current_excess = summ_week_base %>% 
+  filter(metrics_current_excess==1) %>% 
+  select(week) %>% 
+  mutate(wave=case_when(week<as.Date("2020-05-01") ~ "A",
+                        week>as.Date("2021-02-01") ~ "C",
+                        TRUE ~ "B"))
+summ_week_base %>% 
+  ggplot(aes(x=week)) +
+  geom_ribbon(aes(ymin=excess_lob,ymax=excess_upb,fill=col_excess1),alpha=.3) +
+  # geom_line(aes(y=excess_med),col=col_excess1,alpha=.3,size=1.1) +
+  geom_line(aes(y=labo_deaths,col="col")) +
+  geom_point(aes(y=labo_deaths,col="col"),shape=21,fill="white") +
+  geom_label(data=date_phases,aes(x=start_date,y=950,label=phase),size=2.5) +
+  geom_point(data=current_excess,y=-500,colour="orange",shape=17) +
+  annotate("text",y=-400,x=as.Date(c("2020-04-04","2020-11-28","2021-12-07")),
+           label=c("A","B","C"),colour="orange",hjust=.5,size=3) +
+  coord_cartesian(ylim=c(-500,1000)) +
+  labs(x="Time",y="Weekly count") +
+  scale_x_date(date_labels = "%b %Y") +
+  scale_fill_identity(name = NULL, guide = 'legend', labels = c('Excess deaths')) +
+  scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed deaths") +
+  theme(legend.position = c(.7,.75),
+        legend.spacing = unit(0,"mm"),
+        legend.text=element_text(size=7.5),
+        legend.key.height = unit(0,"mm"),
+        legend.background = element_blank(),
+        legend.margin = margin(0,0,0,0))
+
+```
+
+<br>
+*Figure 1*. Comparing weekly counts of laboratory-confirmed deaths with weekly excess deaths over the 7 phases of the epidemic in Switzerland (shown at the top). Orange triangles on the bottom signal the three periods A, B and C of high excess mortality (defined as when the lower bound of excess mortality is greater than 0).
+
+
+```{r, fig.width=6, fig.height=3.5}
+tmp = summ_week_base %>% 
+  left_join(current_excess,by="week") %>% 
+  filter(!is.na(wave)) %>% 
+  group_by(wave) %>% 
+  mutate(week2=row_number()) 
+  
+summ_week_age_base %>% 
+  left_join(current_excess,by="week") %>% 
+  filter(!is.na(wave)) %>% 
+  group_by(wave,age_group) %>% 
+  mutate(week2=row_number()) %>% 
+  filter(!is.na(metrics_ascert_med)) %>% 
+  ggplot() +
+  geom_hline(yintercept=1,linetype=2,colour="grey") +
+  geom_line(aes(x=week2,y=metrics_ascert_med,colour=age_group)) +
+  geom_point(aes(x=week2,y=metrics_ascert_med,colour=age_group)) +
+  geom_line(data=tmp,aes(x=week2,y=metrics_ascert_med),colour="black") +
+  geom_point(data=tmp,aes(x=week2,y=metrics_ascert_med,shape="Overall"),colour="black") +
+  facet_grid(~wave,scale = "free_x",space = "free") +
+  scale_y_continuous(labels=scales::percent) +
+  scale_shape_manual(values=c("Overall"=15)) +
+  scale_x_continuous(breaks=1:12,minor_breaks = NULL,expand=expansion(add=c(.5,.5))) +
+  labs(x="Weeks within periods",y="Ratio",colour="Age group",shape=NULL)
+  
+```
+
+<br>
+*Figure 2*. Ratio of laboratory-confirmed deaths over median excess deaths during the three periods of high excess mortality A, B and C. Only age groups with high excess mortality during a given week (i.e. the lower bound of excess mortality is above 0) are shown.
+
+
+
+
+```{r, fig.width=6, fig.height=3.5}
+tmp = current_excess %>% 
+  group_by(wave) %>% 
+  summarise(min=min(week)-.5,
+            max=max(week)+6.5)
+summ_week_canton_base %>%
+  ggplot(aes(x=week)) +
+  geom_tile(aes(fill=prob_above,y=canton)) +
+  scale_x_date(date_labels = "%b %Y",expand=expansion(0,0)) +
+  scale_y_discrete(limits=rev) +
+  scale_fill_distiller(palette="BrBG",labels=scales::percent) +
+  geom_vline(data=tmp,aes(xintercept=min),linetype=2) +
+  geom_vline(data=tmp,aes(xintercept=max),linetype=2) +
+  annotate("text",y=13,x=as.Date(c("2020-04-04","2020-11-28","2021-12-07")),
+           label=c("A","B","C"),colour="black",hjust=.5,size=5) +
+  labs(x="Time",y="Canton",fill="Probability of under-ascertainment   ") +
+  coord_cartesian(clip="off") +
+  theme(legend.position = "bottom",
+        legend.title = element_text(size=8.5),
+        legend.text=element_text(size=7.5),
+        legend.key.height = unit(3,"mm"),
+        legend.background = element_blank(),
+        legend.margin = margin(0,0,0,0))
+```
+
+<br>
+*Figure 3*. Probability that the number of laboratory-confirmed deaths is lower than the number of excess deaths in a given week by canton. The three periods of high excess mortality are highlighted.

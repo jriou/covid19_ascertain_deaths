@@ -1,3 +1,6 @@
+# Data
+/savepoint/*
+
 # History files
 .Rhistory
 .Rapp.history
