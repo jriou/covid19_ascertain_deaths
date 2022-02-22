@@ -7,14 +7,18 @@ da_201_summarise_by <- function(dat,by) {
   by = append(by,"it")
   summ = dat %>% 
     dplyr::group_by_at(vars(one_of(by))) %>% 
-    dplyr::summarise(excess=sum(excess),
+    dplyr::summarise(deaths=sum(deaths),
+                     exp_deaths=sum(exp_deaths),
+                     excess=sum(excess),
                      labo_deaths=sum(labo_deaths),
-                     deaths=sum(deaths),
                      .groups="drop_last") %>%
-    dplyr::summarise(excess_med=median(excess),
+    dplyr::summarise(exp_deaths_med=median(exp_deaths),
+                     exp_deaths_lob=quantile(exp_deaths,0.025),
+                     exp_deaths_upb=quantile(exp_deaths,0.975),
+                     excess_med=median(excess),
                      excess_lob=quantile(excess,0.025),
                      excess_upb=quantile(excess,0.975),
-                     prob_above=mean(excess>labo_deaths),
+                     metrics_prob_above=mean(excess>labo_deaths),
                      labo_deaths=unique(labo_deaths),
                      deaths=unique(deaths),
                      .groups="drop") %>% 
