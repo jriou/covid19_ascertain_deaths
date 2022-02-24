@@ -58,11 +58,13 @@ nimble_sam <- function(J){
   nb <- 10000  
   
   dat_fin %>% filter(it %in% J) -> dat
-  dat %>% dplyr::select(starts_with("exp_age")|starts_with("labo_age")) -> X
+  dat %>% dplyr::select(starts_with("exp_int")|starts_with("labo_int")) -> X
   
   if(ncol(X) == 1){
     X = dat %>% dplyr::select(starts_with("exp_")|starts_with("labo_"))
     X <- X[,-1]
+  }else{
+    X <- X[,-c(1,2)]
   }
   
   inits <- list(
@@ -125,7 +127,7 @@ mod <- nimbleCode(
 
 ########
 ########
-# Age, canton and phase
+# Total, age, canton and phase
 
 by <- NULL
 by <- "age_group"
@@ -141,37 +143,33 @@ samp$samples_base %>%
 # select samples
 dat %>% filter(it %in% 1:200) -> dat
 
+
 if(is.null(by) == FALSE){
   
-  dummies_interaction <- dummy_cols(dat$age_group)[,-1]
-  dummies_interaction * rep(dat$exp_deaths, ncol(dummies_interaction)) -> exp_age_interaction
+  dummies_interaction <- dummy_cols(dat[,by])[,-1]
+  dummies_interaction * rep(dat$exp_deaths, ncol(dummies_interaction)) -> exp_deaths_interaction
   dummies_interaction * rep(dat$labo_deaths, ncol(dummies_interaction)) -> labo_deaths_interaction
   
   
   if(by == "age_group"){
-    colnames(exp_age_interaction) <- c("exp_age_0_39", "exp_age_40_59", "exp_age_60_69", "exp_age_70_79", "exp_age_80")
-    colnames(labo_deaths_interaction) <- c("labo_age_0_39", "labo_age_40_59", "labo_age_60_69", "labo_age_70_79", "labo_age_80")
+    colnames(exp_deaths_interaction) <- c("exp_int_0_39", "exp_int_40_59", "exp_int_60_69", "exp_int_70_79", "exp_int_80")
+    colnames(labo_deaths_interaction) <- c("labo_int_0_39", "labo_int_40_59", "labo_int_60_69", "labo_int_70_79", "labo_int_80")
   }
   
-  if(by == "canton"){
-    colnames(exp_age_interaction) <- 
-      gsub(pattern = ".data", replacement = "exp_age", colnames(exp_age_interaction))
+  if(by == "canton" | by == "phase"){
+    colnames(exp_deaths_interaction) <- 
+      paste0("exp_int_", colnames(exp_deaths_interaction))
     colnames(labo_deaths_interaction) <- 
-      gsub(pattern = ".data", replacement = "labo_age", colnames(labo_deaths_interaction))
+      paste0("labo_int_", colnames(labo_deaths_interaction))
   }
   
-  if(by == "phase"){
-    colnames(exp_age_interaction) <- 
-      gsub(pattern = ".data", replacement = "exp_age", colnames(exp_age_interaction))
-    colnames(labo_deaths_interaction) <- 
-      gsub(pattern = ".data", replacement = "labo_age", colnames(labo_deaths_interaction))
-  }
-  
-  dat_fin <- cbind(dat, exp_age_interaction, labo_deaths_interaction)
+  dat_fin <- cbind(dat, exp_deaths_interaction, labo_deaths_interaction)
   
 }else{
   dat_fin <- dat
+  by <- "Total"
 }
+
 
 
 # summary(glm(deaths ~ exp_deaths:age_group + labo_deaths:age_group -1, family = poisson(link = "identity"), data = dat))
@@ -182,7 +180,7 @@ if(is.null(by) == FALSE){
 # lapply(1:200, nimble_sam) -> sm
 # t_1 <- Sys.time() 
 
-
+t_0 <- Sys.time()
 no_cores <- 10 
 cl <- makeCluster(no_cores) 
 
@@ -196,9 +194,15 @@ clusterEvalQ(cl, {
 
 result <- parLapply(cl, 1:200, nimble_sam)  
 stopCluster(cl) 
+t_1 <- Sys.time()
+t_1 - t_0
 
-# by = NULL, takes 18min
+saveRDS(result, file = paste0("savepoint/SamplesBMA_", by))
 
+# by = NULL, takes ~20min
+# by = age_group, takes xx min
+# by = age_group, takes ~12h
+# by = age_group, takes xx min
 
 
 ########################################################################
