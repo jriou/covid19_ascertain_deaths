@@ -129,7 +129,7 @@ mod <- nimbleCode(
 ########
 # Total, age, canton and phase
 
-by <- NULL
+by <- NULL # this corresponds to total
 by <- "age_group"
 by <- "canton"
 by <- "canton"
@@ -200,9 +200,9 @@ t_1 - t_0
 saveRDS(result, file = paste0("savepoint/SamplesBMA_", by))
 
 # by = NULL, takes ~20min
-# by = age_group, takes xx min
-# by = age_group, takes ~12h
-# by = age_group, takes xx min
+# by = age_group, takes ~40min
+# by = canton, takes ~12h
+# by = phase, takes ~30min
 
 
 ########################################################################
