@@ -7,46 +7,47 @@ source("R/da_setup.R")
 
 if(FALSE) { # ignored upon sourcing
   
-  # Block 0: load all ----
+  # Block 0: apply model to estimate excess mortality from https://www.nature.com/articles/s41467-022-28157-3
+  
+  # Block 1: load samples and laboratory-confirmed deaths ----
   samp = da_001_load_samples()
   labd = da_002_load_lab_deaths(end_date)
   
-  # Block 1: data management ----
+  # Block 2: data management ----
   samp = da_101_clean_samples(samp)
   labd = da_102_clean_lab_deaths(labd)
   samp = da_103_merge(samp,labd)
   
-  # Save point ----
+  # Save point
   saveRDS(samp,"savepoint/merged_samples.rds")
+  samp = readRDS("savepoint/merged_samples.rds")
+  
+  # Optional: reduce samples during development
+  if(FALSE) {
+    samp$samples_base = dplyr::filter(samp$samples_base,it<=100)
+    samp$samples_temp = dplyr::filter(samp$samples_temp,it<=100)
+  }
+  
+  # Block 2: summarize ----
+  summ_all_base = da_201_summarise_by(samp$samples_base,by=NULL)
+  summ_all_temp = da_201_summarise_by(samp$samples_temp,by=NULL)
+  summ_week_base = da_201_summarise_by(samp$samples_base,by=c("week"))
+  summ_week_temp = da_201_summarise_by(samp$samples_temp,by=c("week"))
+  summ_phase_base = da_201_summarise_by(samp$samples_base,by=c("phase"))
+  summ_phase_canton = da_201_summarise_by(samp$samples_base,by=c("phase","canton"))
+  summ_week_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","age_group"))
+  summ_week_canton_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton"))
+  summ_week_canton_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton","age_group"))
+  
+  # Save point
+  save(list=ls(pattern = "summ_"),file="savepoint/summ.Rdata")
 }
 
-# Start from save point upon sourcing ----
-samp = readRDS("savepoint/merged_samples.rds")
+# Start from save point upon sourcing
+load("savepoint/summ.Rdata")
 
-# Reduce samples during development ----
-if(FALSE) {
-  samp$samples_base = dplyr::filter(samp$samples_base,it<=100)
-  samp$samples_temp = dplyr::filter(samp$samples_temp,it<=100)
-}
 
-# Block 2: summarise ----
-
-summ_all_base = da_201_summarise_by(samp$samples_base,by=NULL)
-summ_all_temp = da_201_summarise_by(samp$samples_temp,by=NULL)
-summ_week_base = da_201_summarise_by(samp$samples_base,by=c("week"))
-summ_week_temp = da_201_summarise_by(samp$samples_temp,by=c("week"))
-summ_phase_base = da_201_summarise_by(samp$samples_base,by=c("phase"))
-# summ_phase_temp = da_201_summarise_by(samp$samples_temp,by=c("phase"))
-# summ_phase_age_sex_base = da_201_summarise_by(samp$samples_base,by=c("phase","age_group","sex"))
-summ_phase_canton = da_201_summarise_by(samp$samples_base,by=c("phase","canton"))
-# summ_phase_canton_age_sex_base = da_201_summarise_by(samp$samples_base,by=c("phase","canton","age_group","sex"))
-# summ_week_age_sex_base = da_201_summarise_by(samp$samples_base,by=c("week","age_group","sex"))
-summ_week_age_base = da_201_summarise_by(samp$samples_base,by=c("week","age_group"))
-summ_week_canton_base = da_201_summarise_by(samp$samples_base,by=c("week","canton"))
-# summ_week_canton_age_sex_base = da_201_summarise_by(samp$samples_base,by=c("week","canton","age_group","sex"))
-summ_week_canton_age_base = da_201_summarise_by(samp$samples_base,by=c("week","canton","age_group"))
-
-# Block 3: plot ----
+# Block 3: descriptive figures ----
 
 # Laboratory-confirmed deaths and excess death over time
 summ_week_base %>% 
@@ -65,7 +66,6 @@ summ_week_base %>%
 summary(lm(deaths ~ labo_deaths,data=summ_week_base))
 summary(lm(deaths ~  exp_deaths_med + labo_deaths -1,data=summ_week_base))
 
-
 # Linear model by canton
 summ_week_canton_base %>% 
   ggplot() +
@@ -73,12 +73,27 @@ summ_week_canton_base %>%
   facet_wrap(~ canton,scales="free")
 summary(lm(deaths ~ exp_deaths_med:canton + labo_deaths:canton -1,data=summ_week_canton_base))
 
-
 # Linear model by age
 summ_week_age_base %>% 
   ggplot() +
   geom_point(aes(x=labo_deaths,y=deaths,colour=age_group)) +
   facet_wrap(~ age_group,scales="free")
 summary(lm(deaths ~ exp_deaths_med:age_group + labo_deaths:age_group -1,data=summ_week_age_base))
-summary(m3)
 
+
+# Block 4: regression and Bayesian model averaging ----
+
+# Regression and Bayesian model averaging procedure
+if(FALSE) {
+  source("R/NIMBLE_BMA.R") 
+  source("R/Combine_Samples.R")
+}
+
+# Load outputs from the regression and Bayesian model averaging procedure
+regbma = readRDS("savepoint/combined_samples.rds")
+
+# Format outputs
+summ_regbma = da_401_format_regbma(regbma)
+
+# Plot
+da_402_plot_regbma(summ_regbma)

@@ -1,6 +1,6 @@
 #:::::::::::::::::::::::::::::
 # Project: death_ascertainment
-# description: summary plot
+# description: format posterior samples from regression and BMA
 #:::::::::::::::::::::::::::::
 
 da_301_summary_plot <- function(dat) {
@@ -18,7 +18,7 @@ da_301_summary_plot <- function(dat) {
     geom_line(aes(y=labo_deaths,col="col")) +
     geom_point(aes(y=labo_deaths,col="col"),shape=21,fill="white") +
     # geom_label(data=date_phases,aes(x=start_date,y=950,label=phase),size=2.5) +
-    geom_point(data=current_excess,y=lims[1],colour="orange",shape=17) +
+    # geom_point(data=current_excess,y=lims[1],colour="orange",shape=17) +
     # annotate("text",y=lims[1]*.9,x=as.Date(c("2020-04-04","2020-11-28","2021-12-07")),
              # label=c("A","B","C"),colour="orange",hjust=.5,size=3) +
     coord_cartesian(ylim=lims) +
