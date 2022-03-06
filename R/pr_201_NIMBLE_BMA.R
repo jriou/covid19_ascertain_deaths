@@ -50,7 +50,7 @@ if(FALSE) {
 
 nimble_sam <- function(J){
   
-  params <- c("beta", "mean.beta", "sd.beta")
+  
   # MCMC setting
   ni <- 100000  
   nt <- 90     
@@ -80,7 +80,8 @@ nimble_sam <- function(J){
     K = ncol(X), 
     M = ncol(X)/2,
     b = 100, 
-    a = 0.000001
+    a = 0.000001, 
+    Tot = Tot
   )
   
   # define the model
@@ -126,12 +127,17 @@ mod <- nimbleCode(
     for(k in (M+1):K){
       beta[k] ~ T(dnorm(mean.beta[2], sd = sd.beta[2]), 0, b)
     }
-      
-    mean.beta[1] ~ T(dnorm(0, sd = 2), 0, b)
-    sd.beta[1] ~ dexp(rate = 1)
     
-    mean.beta[2] ~ T(dnorm(0, sd = 5), 0, b)
-    sd.beta[2] ~ dexp(rate = 0.1)
+    if(Tot){
+      mean.beta[1:2] <- c(0,0) 
+      sd.beta[1:2] <- c(10,5) 
+    }else{
+      mean.beta[1] ~ T(dnorm(0, sd = 2), 0, b)
+      sd.beta[1] ~ dexp(rate = 1)
+      
+      mean.beta[2] ~ T(dnorm(0, sd = 5), 0, b)
+      sd.beta[2] ~ dexp(rate = 0.1)
+    }
   }
 )
 
@@ -157,6 +163,8 @@ dat %>% filter(it %in% 1:200) -> dat
 
 if(is.null(by) == FALSE){
   
+  Tot <- FALSE
+  params <- c("beta", "mean.beta", "sd.beta")
   dummies_interaction <- dummy_cols(dat[,by])[,-1]
   dummies_interaction * rep(dat$exp_deaths, ncol(dummies_interaction)) -> exp_deaths_interaction
   dummies_interaction * rep(dat$labo_deaths, ncol(dummies_interaction)) -> labo_deaths_interaction
@@ -179,6 +187,8 @@ if(is.null(by) == FALSE){
 }else{
   dat_fin <- dat
   by <- "Total"
+  Tot <- TRUE
+  params <- c("beta")
 }
 
 
@@ -198,7 +208,7 @@ t_0 <- Sys.time()
 no_cores <- 10 
 cl <- makeCluster(no_cores) 
 
-clusterExport(cl, c("dat_fin", "mod"))
+clusterExport(cl, c("dat_fin", "mod", "Tot", "params"))
 
 clusterEvalQ(cl, {
   library(nimble)

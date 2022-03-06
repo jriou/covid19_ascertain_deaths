@@ -13,7 +13,7 @@ library(fastDummies)
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 nam <- c("age_group", "canton", "phase", "Total")
-sampls <- lapply(paste0("savepoint/SamplesBMA_", nam), readRDS)
+sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam), readRDS)
 
 # retrieve 1000 of the combined posteriors
 lapply(sampls, function(X){
@@ -24,16 +24,10 @@ lapply(sampls, function(X){
 names(combined_samples) <- nam
 
 
-
-
-# need to go back and retrieve the names of the coefficients
+# need to go back and retrieve the names of the coefficients, thus i need the results
+# of the INLA modelling.
 samp = readRDS("savepoint/merged_samples.rds")
 
-# Reduce samples during development ----
-if(TRUE) {
-  samp$samples_base = dplyr::filter(samp$samples_base,it<=100)
-  samp$samples_temp = dplyr::filter(samp$samples_temp,it<=100)
-}
 
 
 for(i in 1:length(nam)){
@@ -61,7 +55,7 @@ for(i in 1:length(nam)){
   
 }
 
-saveRDS(combined_samples, file = "savepoint/combined_samples")
+saveRDS(combined_samples, file = "savepoint/combined_samples_trun")
 
 # get the summary statistics
 lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025, 0.975)))
