@@ -46,6 +46,19 @@ qsum = function(a,b,c) paste0(formatC(a, format="f", big.mark=",", digits=0),
                               " to ",
                               formatC(c, format="f", big.mark=",", digits=0),
                               ")")
+qsumperc = function(a,b,c) paste0(formatC(a*100, format="f", big.mark=",", digits=0),
+                              "% (",
+                              formatC(b*100, format="f", big.mark=",", digits=0),
+                              " to ",
+                              formatC(c*100, format="f", big.mark=",", digits=0),
+                              ")")
+qsum2 = function(a,b,c) paste0(formatC(a, format="f", big.mark=",", digits=2),
+                              " (",
+                              formatC(b, format="f", big.mark=",", digits=2),
+                              " to ",
+                              formatC(c, format="f", big.mark=",", digits=2),
+                              ")")
+summ_samples = function(x) c(quantile(x,probs=c(0.5,0.025,0.975)),prob1=mean(x>1))
 
 # aesthetics ----
 theme_set(theme_bw())

@@ -1,11 +1,10 @@
 ---
-title: Ascertainment of laboratoy-confirmed COVID-19 deaths in Switzerland until January 2022
+title: Ascertainment of laboratoy-confirmed SARS-CoV-2-related deaths in Switzerland until January 2022
 date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
 output:
-  word_document: default
   html_document:
-    df_print: paged
-  pdf_document: default
+     theme: "journal"
+     code_folding : hide
 subtitle: Julien Riou (1,2,*), Anthony Hauser (1,2), Garyfallos Konstantinoudis (3) ^[(1) Institute of Social and Preventive Medicine, University of Bern, Switzerland.
   (2) Federal Office of Public Health, Switzerland. (3) MRC Centre for Environment and Health, Department of Epidemiology and Biostatistics, School of Public Health, Imperial College London, London, UK. *julien.riou@ispm.unibe.ch]
 bibliography: bibliography.bib
@@ -15,48 +14,80 @@ csl: ieee.csl
 
 ```{r setup, include=FALSE}
 source("main.R")
+table1 = da_406_format_table(summ_all_base,summ_regbma2)
 ```
 
 
-There are two main approaches to quantifying the impact of SARS-CoV-2 and COVID-19 in a population in terms of mortality. 
-The first approach relies upon the reporting of laboratory-confirmed COVID-19 deaths, i.e. deaths of people with a recent SARS-CoV-2 infection proven by a positive RT-PCR or rapid antigen test.
-This approach has the advantage of being available in real-time, and is considered as reliable in areas where testing is widely available.
-It is however not exhaustive, as some deaths will remain unascertained because of a lack of test (e.g. because of test shortages or overwhelmed health systems) or because of a false negative.
-Laboratory-confirmed deaths also do not include deaths that have been indirectly caused (or averted) by SARS-CoV-2 epidemics, e.g. in consequence of control measures. 
+There are two main approaches to quantifying the impact of SARS-CoV-2 infection in a population in terms of mortality. 
+The first approach relies upon the reporting of laboratory-confirmed deaths, i.e. deaths of people with a recent SARS-CoV-2 infection proven by a positive RT-PCR or rapid antigen test.
+This has the advantage of being available in real-time, and is considered as reliable in situations where testing is widely available and a death registration system is in place.
+It is however not exhaustive, as some deaths will remain unascertained because of a lack of test (e.g. because of test shortages or overwhelmed health systems) [@li2020researchfactors].
+Laboratory-confirmed deaths also do not include deaths that have been indirectly caused (or averted) by the SARS-CoV-2 pandemic, e.g. in consequence of control measures. 
 The second approach is based on excess mortality, and relies upon all-cause mortality data and counter-factual reasoning.
 The idea is to compare the observed number of deaths to what would have been expected had the SARS-CoV-2 pandemic not occurred, based on mortality data from the previous years and population changes.
-Excess mortality has the advantage of summing all the negative and positive effects of the occurrence of SARS-CoV-2 on mortality, at the cost of not being able to disentangle them. 
+Excess mortality has the advantage of summing all the negative and positive effects of the occurrence of SARS-CoV-2 on mortality, at the cost of not being able to disentangle them [@wang2022estimating]. 
 It is also highly dependent on assumptions and methodological choices.
-In this analysis of all available data in Switzerland until January 2022, we aimed to characterize the commonalities and discrepancies between laboratory-confirmed COVID-19-related deaths and excess mortality over time by age and location.
+In this analysis of all available data in Switzerland until January 2022, we aimed to characterize the commonalities and discrepancies between laboratory-confirmed SARS-CoV-2-related deaths and excess mortality by time period, location and age group. We also propose an approach to separate excess deaths into deaths that were directly caused by SARS-CoV-2 infections and changes in mortality that were indirectly caused by the pandemic.
 
-The declaration of laboratory-confirmed COVID-19 deaths has been mandatory in Switzerland since February 2020. 
-All collected data are centralized at the Federal Office of Public Health.
+The declaration of laboratory-confirmed SARS-CoV-2-related deaths has been mandatory in Switzerland since February 2020. 
+All collected data are centralized at the Federal Office of Public Health [REF].
 Case definition (...).
 Available information include age, sex, canton of residence, and the date and type of the positive SARS-CoV-2 test.
-Individual data on all deaths occurring in Switzerland from death certificates are collected by the Federal Office of Statistics. 
+Individual data on all deaths occurring in Switzerland from death certificates are collected by the Federal Office of Statistics [REF]. 
 Information include (...).
 Details about the cause of death as listed in the death certificate are encoded with a delay of several months and were not available for this analysis.
-We used the approach proposed in [@konstantinoudis2022regional] to compute the expected number of all-cause deaths for each week between 1 February 2020 and 30 January 2022 by age and canton of residence based on historical data.
-Excess mortality is the difference between the expected and observed number of all-cause deaths.
+We used the approach proposed in [@konstantinoudis2022regional] to compute the expected number of all-cause deaths for each week between `r format(min(date_phases$start_date),"%d %B %Y")` and `r format(max(date_phases$end_date),"%d %B %Y")` by age and canton of residence based on historical data (2014-2019).
+Excess mortality was defined as the difference between the expected and observed number of all-cause deaths.
 Briefly, the methods relies upon the following assumptions (...).
 
-We then developed a statistical model linking these two sources of data.
+We developed a statistical model to link these two sources of data.
 We used a Poisson regression model with an identity link and no intercept of the form:
 $$
 \text{O}_{t} \sim \text{Poisson}\left( \beta_1\text{L}_{t} + \beta_2\text{E}_{t} \right),
 $$
-where $\text{D}_{t}$ is the observed number of all-cause deaths on week $t$; $\text{L}_{t}$ is the number of laboratory-confirmed COVID-19 deaths; and $\text{E}_{t}$ is the expected number of all-cause deaths given historical trends.
-Within this formulation, $\beta_1$ is the additional number of observed all-cause deaths for each unit increase in $\text{L}_{t}$, so that, assuming that all additional deaths occurring during a SARS-CoV-2 wave can be directly or indirectly linked to SARS-CoV-2 infection, $\beta_1-1$ can be interpreted as the relative number of unascertained deaths that have been directly or indirectly caused by SARS-CoV-2 for each laboratory-confirmed death.
-In a similar way, $\beta_2$ is the additional number of observed all-cause deaths for each unit increase in the expected , so that it can be interpreted as the relative excess mortality adjusted for the effects of SARS-CoV-2.
+where $\text{O}_{t}$ is the observed number of all-cause deaths on week $t$, $\text{L}_{t}$ is the number of laboratory-confirmed SARS-CoV-2-related deaths, and $\text{E}_{t}$ is the expected number of all-cause deaths given historical trends.
+Within this formulation, $\beta_1$ is the additional number of all-cause deaths to be observed for each unit increase in laboratory-confirmed deaths, after adjusting for the expected number of all-causes deaths given historical trends.
+The estimate of $\beta_1$ can thus be used to estimate the total number of deaths directly attributable to SARS-CoV-2, of which only some were ascertained.
+This relies on the assumption that when there is at least one laboratory-confirmed death in a given week, then all the excess all-cause deaths can be directly attributed to SARS-CoV-2 infections.
+If $\beta_1>1$, then were more deaths that can be directly attributed to SARS-CoV-2 infections than the number of laboratory-confirmed death. 
+In a similar way, $\beta_2$ is the additional number of all-cause deaths to be observed for each unit increase in the expected number of all-cause deaths, after adjusting for the direct effect of SARS-CoV-2 infections. 
+The estimate of $\beta_2$ can thus be interpreted as a measure of the indirect effect of the pandemic on mortality.
+If $\beta_2<1$, then there were fewer all-cause deaths than expected after removing the direct effect of SARS-CoV-2, which implies an indirect protective effect of all changes and control measures associated with the pandemic.
+
+Estimates of $\beta_1$ and $\beta_2$ provide a good description of the association between laboratory-confirmed SARS-CoV-2-related deaths and excess all-cause deaths, and allow to differentiate between direct and indirect consequences of the SARS-CoV-2 pandemic in Switzerland.
+We extended the model presented in equation (1) to examine these associations by epidemic wave (from 1 to 7 as defined by the Federal Office of Public Health, see Figure 1A), by age group (5 age groups from 0-39 to 80+), and by area (26 cantons).
+To this aim, we introduced multiple $\beta_1$ and $\beta_2$ under the form of an unstructured random effect.
+
+Weekly counts of laboratory-confirmed SARS-CoV-2-related deaths were aligned with estimates of excess all-cause mortality during most of the pandemic period in Switzerland (Figure 1A). 
+Quantitatively, the amount of excess all-cause deaths was greater than the counts of laboratory-confirmed deaths during epidemic waves (epidemic phases 1, 3 and 6), while the reverse was true outside of epidemic waves (epidemic phases 2, 4 and 5).
+This translated into an overall estimate of $\beta_1$ of `r da_405_format_beta(summ_regbma2,select_group="Overall",select_beta="beta_1")`, 
+suggesting that there were `r da_405_format_beta(summ_regbma2,select_group="Overall",select_beta="beta_1",trans="-1",digits=0)` more deaths directly caused by SARS-CoV-2 than laboratory-confirmed deaths during this period (Table 1).
+Given that there have been `r table1$value[1]` laboratory-confirmed SARS-CoV-2-related deaths between February 2020 and January 2022, this implies that the total number of deaths directly attributable to SARS-CoV-2 is `r table1$value[7]`.
+Conversely, the overall estimate of $\beta_2$ was `r da_405_format_beta(summ_regbma2,select_group="Overall",select_beta="beta_2")`, suggesting that there were `r da_405_format_beta(summ_regbma2,select_group="Overall",select_beta="beta_2",trans="1-",digits=0)` fewer deaths than expected during this period after adjusting for the direct effects of SARS-CoV-2.
+
+Looking at the variation of these indicators across epidemic phases brings further insights.
+The number of deaths directly attributable to SARS-CoV-2 for each laboratory-confirmed deaths ($\beta_1$) was estimated around 1.5 during the first two epidemic waves (corresponding to phases 1 and 3), and higher during phases 5 and 6 suggesting an aggravation of the incompleteness of death ascertainment (Figure 1B).
+It was badly estimated during periods where counts of laboratory-confirmed cases were low (phases 2 and 4).
+(...)
 
 
+**Table 1.** Summary of mortality patterns in Switzerland between February 2020 and January 2022. 
 
-```{r, fig.width=8,fig.height=3.5}
-da_301_summary_plot(summ_week_base)
+```{r}
+table1 %>% 
+    kableExtra::kable(col.names = c("Quantity","Value (95% uncertainty interval where applicable)")) %>% 
+    kableExtra::add_footnote(c("adjusted for expected all-cause deaths","adjusted for deaths directly caused by SARS-CoV-2")) %>% 
+    kableExtra::kable_paper() 
 ```
 
-```{r, fig.width=8,fig.height=3.5}
-da_402_plot_regbma(summ_regbma)
+
+```{r, fig.width=8,fig.height=6,fig.width=6}
+g1 = da_301_summary_plot(summ_week_base)
+g2 = da_404_plot_regbma(summ_regbma2,panel_labels = c("B","C"))
+cowplot::plot_grid(g1,g2,rel_heights = c(.8,1),ncol=1,labels=c("A",""))
 ```
 
-# References
+**Figure 1.** (A) Weekly counts of excess all-cause deaths (95% uncertainty intervals) and of laboratory-confirmed SARS-CoV-2-related deaths between 24 February 2020 and 23 January 2022 in Switzerland. The bar at the bottom shows the probability that excess all-cause deaths is greater than laboratory-confirmed SARS-CoV-2-related deaths (light gray is 0, black is 1). Numbers at the top indicate epidemic phases 1 to 7. (B) Posterior estimates of $\beta_1$, the additional number of all-cause deaths to be observed for each unit increase in laboratory-confirmed deaths, after adjusting for the expected number of all-causes deaths given historical trends. (C) Posterior estimates of $\beta_2$, the additional number of all-cause deaths to be observed for each unit increase in the expected number of all-cause deaths, after adjusting for the direct effect of SARS-CoV-2 infections. Estimates of $\beta_1$ and $\beta_2$ are shown for the whole period, by epidemic phase (see panel A), by age group and by canton.
+
+
+**References**

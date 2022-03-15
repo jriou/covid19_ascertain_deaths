@@ -54,7 +54,6 @@ summ_week_base %>%
   da_301_summary_plot()
 summ_week_temp %>% 
   da_301_summary_plot()
-
 summ_week_canton_base %>% 
   dplyr::filter(canton=="ZH") %>% 
   da_301_summary_plot()
@@ -97,3 +96,15 @@ summ_regbma = da_401_format_regbma(regbma)
 
 # Plot
 da_402_plot_regbma(summ_regbma)
+
+
+# Block 5: multilevel regression and BMA ----
+
+# Load outputs from the multilevel regression and Bayesian model averaging procedure
+regbma2 = readRDS("savepoint/combined_samples_trun")
+
+# Format outputs
+summ_regbma2 = da_403_format_regbma2(regbma2)
+
+# Plot
+da_404_plot_regbma(summ_regbma2)

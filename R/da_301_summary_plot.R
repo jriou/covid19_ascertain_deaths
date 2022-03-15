@@ -4,35 +4,40 @@
 #:::::::::::::::::::::::::::::
 
 da_301_summary_plot <- function(dat) {
-  current_excess = dat %>% 
-    filter(metrics_current_excess==1) %>% 
-    select(week) %>% 
-    mutate(wave=case_when(week<as.Date("2020-05-01") ~ "A",
-                          week>as.Date("2021-02-01") ~ "C",
-                          TRUE ~ "B"))
-  lims = c(-max(dat$excess_upb)*0.75,max(dat$excess_upb)*1.5)
-  g = dat %>% 
+  # sort out limits
+  lims = c(min(dat$excess_upb)*1.1,max(dat$excess_upb)*1.15)
+  # plot weekly counts
+  g1 = dat %>% 
     ggplot(aes(x=week)) +
+    geom_hline(yintercept=0,col="grey50") +
     geom_ribbon(aes(ymin=excess_lob,ymax=excess_upb,fill=col_excess1),alpha=.3) +
-    # geom_line(aes(y=excess_med),col=col_excess1,alpha=.3,size=1.1) +
     geom_line(aes(y=labo_deaths,col="col")) +
     geom_point(aes(y=labo_deaths,col="col"),shape=21,fill="white") +
-    # geom_label(data=date_phases,aes(x=start_date,y=950,label=phase),size=2.5) +
-    # geom_point(data=current_excess,y=lims[1],colour="orange",shape=17) +
-    # annotate("text",y=lims[1]*.9,x=as.Date(c("2020-04-04","2020-11-28","2021-12-07")),
-             # label=c("A","B","C"),colour="orange",hjust=.5,size=3) +
-    coord_cartesian(ylim=lims) +
-    labs(x="Time",y="Weekly count") +
-    scale_x_date(date_labels = "%b %Y") +
-    scale_fill_identity(name = NULL, guide = 'legend', labels = c('Excess deaths')) +
-    scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed deaths") +
+    geom_label(data=date_phases,aes(x=start_date+(end_date-start_date)/2,y=lims[2],label=phase),size=2.5,colour="grey50") +
+    labs(x=NULL,y="Weekly count") +
+    scale_x_date(date_labels = "%e %b\n%Y",
+                 breaks=c(date_phases$start_date,max(date_phases$end_date)),
+                 minor_breaks = NULL,
+                 expand=expansion(add=c(4,10))) +
+    scale_y_continuous(expand=expansion(mult=c(0.1,0.08))) + 
+    scale_fill_identity(name = NULL, guide = 'legend', labels = c('Excess all-cause deaths')) +
+    scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed SARS-CoV-2-related deaths") +
     theme(legend.position = c(.7,.75),
           legend.spacing = unit(0,"mm"),
           legend.text=element_text(size=7.5),
           legend.key.height = unit(0,"mm"),
           legend.background = element_blank(),
-          legend.margin = margin(0,0,0,0))
-  
+          legend.margin = margin(0,0,0,0),
+          axis.text.x=element_text(angle=90,hjust=.5,vjust=0.5))
+  # plot probability of excess>lab
+  g2 = ggplot(dat) +
+    geom_tile(aes(x=week,y="Probability",fill=metrics_prob_above),height=1) +
+    scale_fill_gradientn(colours=  c("grey90","black"),limits=c(0,1),guide="none") +
+    theme_void()
+  # insert g2 into g1
+  g = cowplot::ggdraw() +
+    cowplot::draw_plot(g1) +
+    cowplot::draw_plot(g2, x=0.051,y=0.21,width=.975, height = .04)
   return(g)
 }
 
