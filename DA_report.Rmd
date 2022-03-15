@@ -68,7 +68,13 @@ Conversely, the overall estimate of $\beta_2$ was `r da_405_format_beta(summ_reg
 Looking at the variation of these indicators across epidemic phases brings further insights.
 The number of deaths directly attributable to SARS-CoV-2 for each laboratory-confirmed deaths ($\beta_1$) was estimated around 1.5 during the first two epidemic waves (corresponding to phases 1 and 3), and higher during phases 5 and 6 suggesting an aggravation of the incompleteness of death ascertainment (Figure 1B).
 It was badly estimated during periods where counts of laboratory-confirmed cases were low (phases 2 and 4).
-(...)
+The number of observed all-cause deaths for each expected all-cause deaths ($\beta_2$) also varied by phase.
+It was comparatively lower during epidemic waves (phases 1 and 3), but also in the period following the second epidemic wave (phase 4), suggesting some level of mortality displacement.
+Variation of $\beta_1$ by age group suggests that more deaths go unascertained in age group 80+, which points toward nursing homes as where incomplete ascertainment occurs. 
+Estimates of $\beta_2$ aslo show a gradient by age, with the groups most affected by SARS-CoV-2 mortality also being the ones that show a deficit of all-cause deaths, an argument in favor of mortality displacement.
+Estimates by canton show generally homogeneous results for the whole of Switzerland, with a few exceptions where $\beta_1$ is high, potentially signaling an issue in death ascertainment.
+
+Conclusion needed.
 
 
 **Table 1.** Summary of mortality patterns in Switzerland between February 2020 and January 2022. 

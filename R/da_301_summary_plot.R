@@ -22,7 +22,7 @@ da_301_summary_plot <- function(dat) {
     scale_y_continuous(expand=expansion(mult=c(0.1,0.08))) + 
     scale_fill_identity(name = NULL, guide = 'legend', labels = c('Excess all-cause deaths')) +
     scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed SARS-CoV-2-related deaths") +
-    theme(legend.position = c(.7,.75),
+    theme(legend.position = c(.75,.75),
           legend.spacing = unit(0,"mm"),
           legend.text=element_text(size=7.5),
           legend.key.height = unit(0,"mm"),
@@ -37,7 +37,7 @@ da_301_summary_plot <- function(dat) {
   # insert g2 into g1
   g = cowplot::ggdraw() +
     cowplot::draw_plot(g1) +
-    cowplot::draw_plot(g2, x=0.051,y=0.21,width=.975, height = .04)
+    cowplot::draw_plot(g2, x=0.053,y=0.21,width=.973, height = .04)
   return(g)
 }
 
