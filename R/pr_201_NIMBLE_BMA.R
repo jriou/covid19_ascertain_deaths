@@ -12,11 +12,11 @@ library(nimble)
 library(tidyr)
 library(doParallel) 
 library(fastDummies) 
-
+library(dplyr)
 
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
-end_date = as.Date("2022-01-30")
+end_date = as.Date("2021-12-31")
 source("R/da_setup.R")
 
 if(FALSE) { # ignored upon sourcing
@@ -42,6 +42,12 @@ if(FALSE) {
   samp$samples_base = dplyr::filter(samp$samples_base,it<=100)
   samp$samples_temp = dplyr::filter(samp$samples_temp,it<=100)
 }
+
+
+# select to use the predictions including the temperature
+temperature <- TRUE
+# select whether to exclude phase 7 or not (TRUE includes it)
+phase7 <- FALSE
 
 
 ##
@@ -151,14 +157,29 @@ by <- "age_group"
 by <- "canton"
 by <- "phase"
 
-samp$samples_base %>% 
+# select samples and exclude phase 7
+
+
+if(temperature == TRUE){
+  dat <- samp$samples_temp
+  nam <- "temperature"
+}else{
+  dat <- samp$samples_base
+  nam <- "no_temperature"
+}
+
+if(phase7==FALSE){
+  dat %>% filter(it %in% 1:200, !(phase %in% 7)) -> dat
+}else{
+  dat %>% filter(it %in% 1:200) -> dat
+}
+
+dat %>% 
   group_by_at(vars("week", by, "it")) %>% 
   summarise(deaths=sum(deaths), 
             exp_deaths = sum(exp_deaths),
             labo_deaths = sum(labo_deaths)) -> dat
 
-# select samples
-dat %>% filter(it %in% 1:200) -> dat
 
 
 if(is.null(by) == FALSE){
@@ -221,7 +242,7 @@ stopCluster(cl)
 t_1 <- Sys.time()
 t_1 - t_0
 
-saveRDS(result, file = paste0("savepoint/SamplesBMAtrun_", by))
+saveRDS(result, file = paste0("savepoint/SamplesBMAtrun_", by, "_", nam))
 
 # by = NULL, takes ~20min
 # by = age_group, takes ~1h
