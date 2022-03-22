@@ -1,5 +1,5 @@
 ---
-title: The interplay between excess mortality and laboratory-confirmed SARS-CoV-2-related deaths: a nationwide study in Switzerland
+title: The interplay between excess mortality and
 date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
 output:
   html_document:
@@ -29,6 +29,10 @@ The idea is to compare the observed number of deaths to what would have been exp
 
 ## Data 
 
+### Prediction model
+We retrieved population estimates for the years 2014-2019 from the Federal Statistical Office in Switzerland. Estimates are available for the 31st of December of each year. To calculate populations at the 31st of December in 2020 and 2021 under the counterfactual scenario that the pandemic did not occur, we performed a two-stage linear interpolation as explained previously [@konstantinoudis2022regional]. Briefly, we based on the 31st of December of years 2014-2019 and a linear regression model, we predicted the 31st of December of years 2020, 2021 and 2022, by age, sex, and canton. Then we calculated weekly population counts  by age, sex, and canton by linearly interpolating the estimates of 31st of December of the consequent years. To help predictions we incorporated covariates related with ambient temperature and national holidays. Daily mean ambient temperature during 2014 and 2021 at 1km grid was retrieved from the MeteoSwiss and aggregated by taking means per week and canton. National holidays were considered as dummy variables, and defined on a weekly basis for each canton, being 1 if there was at least 1 cantonal holiday in that week. 
+
+### Decomposition model
 The declaration of laboratory-confirmed SARS-CoV-2-related deaths has been mandatory in Switzerland since February 2020. 
 All collected data are centralized at the Federal Office of Public Health [REF].
 Case definition (...).
@@ -36,12 +40,13 @@ Available information include age, sex, canton of residence, and the date and ty
 Individual data on all deaths occurring in Switzerland from death certificates are collected by the Federal Office of Statistics [REF]. 
 Information include (...).
 Details about the cause of death as listed in the death certificate are encoded with a delay of several months and were not available for this analysis.
-We used the approach proposed in [@konstantinoudis2022framework] to compute the expected number of all-cause deaths for each week between `r format(min(date_phases$start_date),"%d %B %Y")` and `r format(max(date_phases$end_date),"%d %B %Y")` by age, sex and canton of residence based on historical data (2014-2019). To do so, we used Bayesian spatio-temporal models accounting for population trends (assuming the same rate of population change in 2021 to 2022 with the historical years 2014-2019) and including factors such as spatial and seasonal trends but also temperature and national holidays. With this approach, the entire posterior distribution of the expected deaths is retrieved allowing to propagate the uncertainty of the estimators in the subsequent analyses. The model has been internally validated and found to have high predictive accuracy in the older groups, whereas the results were less reliable in for people $40<$ years old [@konstantinoudis2022regional].
 
-## Prediction model
+## Statistical methods 
+### Prediction model
+We estimated the expected number of all-cause deaths for each week between `r format(min(date_phases$start_date),"%d %B %Y")` and `r format(max(date_phases$end_date),"%d %B %Y")`by age, sex and canton of residence using historical data (2014-2019) and expanding a previously proposed model [@konstantinoudis2022regional]. Briefly, we used Bayesian spatio-temporal models accounting for population trends and including covariates related with temperature and national holidays. Since the effect of temperature on all-cause mortality is expected to be U-shaped, we used a random walk of order 2 to allow flexible fits. We accounted for seasonality using a random walk of order 1 at the weekly level, long term trend using a white noise process at the yearly level and for spatial autocorrelation using conditional autoregressive priors. In particular, we modeled spatial autocorrelation using an extension of the BYM model, allowing for a mixing parameter which measures the proportion of the marginal variance explained by the spatial autocorrelation term (citation). We fitted the model independently for the selected age and sex groups and using the entire posterior distribution of the expected deaths we retrieved estimates at any different aggregation desired [@konstantinoudis2022framework]. The model has been internally validated and found to have high predictive accuracy in the older groups, whereas the results were less reliable in for people $40<$ years old [@konstantinoudis2022regional].
 
 
-## Decomposition model
+### Decomposition model
 
 We developed a method to decompose the observed all-cause deaths into 1) the number that can be expected given historical trends and 2) the number of deaths attributed to SARS-CoV-2.
 We used a Poisson regression model with an identity link and no intercept therm of the form:
@@ -54,6 +59,8 @@ where $\text{O}_{t}$ is the observed number of all-cause deaths on week $t$, $\t
 Within this formulation, $\beta_1$ is the number of all-cause deaths for each unit increase in laboratory-confirmed deaths, after adjusting for the expected number of all-cause deaths given historical trends. That means that under perfect case ascertainment $\beta_1=1$. If $\beta_1>1$, then we observe a greater number of deaths attributed to SARS-CoV-2 infections compared with the number of laboratory-confirmed deaths. The ascertainment proportion of SARS-CoV-2-related deaths is obtained by $1/\beta_1$. This relies on the assumption that when there is at least one laboratory-confirmed death in a given week, then the excess in observed all-cause deaths can be directly attributed to SARS-CoV-2. In a similar way, $\beta_2$ is the number of all-cause deaths for each unit increase in the expected number of all-cause deaths, after adjusting for the direct effect of SARS-CoV-2. We expect $\beta_2=1$ when the net effect of the pandemic-related behavioral, societal and health system changes on all-cause deaths is zero. The estimate of $\beta_2$ can thus be interpreted as a measure of the indirect effect of the pandemic on mortality. If $\beta_2<1$, then there were fewer all-cause deaths than expected after removing the direct effect of SARS-CoV-2, which implies an indirect protective effect of all changes and control measures associated with the pandemic.
 
 # Results
+
+Figure 1, panel A shows the weekly relative excess mortality by canton during 24 of February 2020 and 13 of December 2021. It seems that phase 3 was the period when Switzerland was hit the most, with the relative excess in several cantons being between 100-200%. The canton with the highest relative excess was the canton of Appenzell Innerrhoden, but this just reflects the small number of expected deaths in this canton leading to unstable estimates, Figure 1. Figure 2, panel B shows the posterior probability that the relative excess is higher than 0 during the 6 phases considered. During the first phase the areas hit the most were the ones near the borders with France and Italy, whereas during the third phase of the pandemic in Switzerland, the effect of the pandemic on all cause mortality was homogeneous nationwide, reflecting that the virus was no longer exogenous as it was duing phase 1. Our model reported weak if any evidence of an excess mortality duing phased 2, 4 and 5, Figure 2 panel B. 
 
 Estimates of $\beta_1$ and $\beta_2$ provide a way to understand the interplay between laboratory-confirmed SARS-CoV-2-related deaths and excess all-cause deaths, and allow to differentiate between direct and indirect consequences of the SARS-CoV-2 pandemic. Going beyond the general case at the country level for the whole period, we extended the model presented above to examine these associations by epidemic phase (from 1 to 7 as defined by the Federal Office of Public Health, see Figure 1A), by age group (0-39, 40-59, 60-69,  70-79 and 80+), and by area (26 cantons). To this aim, we introduced multiple $\beta_1$ and $\beta_2$ for each epidemic phase, each age group or each area separately, with the additional constraint of a multilevel structure allowing a smoothing towards the global mean of the estimator [@gelman1995bayesian].
 
@@ -84,6 +91,10 @@ table1 %>%
 
 
 **Figure 1.** Excess by canton/time? Map of excess by epidemic phase?
+<img src="savepoint/Fig1.png"
+     alt="Fig 1" />
+
+
 
 ```{r, fig.width=8,fig.height=3,fig.width=6}
 da_301_summary_plot(summ_week_base)
