@@ -27,7 +27,7 @@ da_404_plot_regbma <- function(x,panel_labels=NULL) {
   g1 = ggplot(lab_) +
     geom_hline(yintercept=1,colour="grey50") +
     geom_hline(yintercept=lab_overall,colour=col1,linetype=3) +
-    geom_hline(data=lab_means,aes(yintercept=beta_med),colour=col1,size=1,alpha=.3) +
+    # geom_hline(data=lab_means,aes(yintercept=beta_med),colour=col1,size=1,alpha=.3) +
     geom_pointrange(aes(x=group,y=beta_med,ymin=beta_lb,ymax=beta_ub),colour=col1,size=.3) +
     # geom_pointrange(aes(x=group,y=beta_med,ymin=beta_lb,ymax=beta_ub,colour=prob1)) +
     # scale_colour_gradient2(low="red",mid="orange",high="skyblue",midpoint = 0.1,trans="pseudo_log") +
@@ -50,7 +50,7 @@ da_404_plot_regbma <- function(x,panel_labels=NULL) {
   g2 = ggplot(exp_) +
     geom_hline(yintercept=1,colour="grey50") +
     geom_hline(yintercept=exp_overall,linetype=3,colour=col2) +
-    geom_hline(data=exp_means,aes(yintercept=beta_med),colour=col2,size=1,alpha=.3) +
+    # geom_hline(data=exp_means,aes(yintercept=beta_med),colour=col2,size=1,alpha=.3) +
     geom_pointrange(aes(x=group,y=beta_med,ymin=beta_lb,ymax=beta_ub),colour=col2,size=.3) +
     facet_grid(. ~ type2,scales="free",space = "free") +
     scale_y_continuous(breaks=seq(0,2,by=.1)) +
