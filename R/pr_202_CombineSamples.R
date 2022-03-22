@@ -29,7 +29,6 @@ names(combined_samples) <- nam
 samp = readRDS("savepoint/merged_samples.rds")
 
 
-
 for(i in 1:length(nam)){
   
   by <- nam[i]
@@ -40,6 +39,7 @@ for(i in 1:length(nam)){
   
   samp$samples_temp %>% 
     group_by_at(vars("week", by, "it")) %>% 
+    filter(it %in% 1:200, !(phase %in% 7)) %>% 
     summarise(deaths=sum(deaths), 
               exp_deaths = sum(exp_deaths),
               labo_deaths = sum(labo_deaths)) -> dat
@@ -66,4 +66,4 @@ lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025,
 #############################################################
 
 
-
+combined_samples$phase
