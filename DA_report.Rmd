@@ -1,5 +1,5 @@
 ---
-title: The interplay between excess mortality and laboratory-confirmed SARS-CoV-2-related deaths: a nationwide study in Switzerland
+title: Examining the interplay between excess mortality and laboratory-confirmed SARS-CoV-2-related deaths: a nationwide study in Switzerland
 date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
 output:
   html_document:
@@ -92,7 +92,7 @@ da_301_summary_plot(summ_week_base)
 **Figure 2.** Weekly counts of excess all-cause deaths (95% uncertainty intervals) and of laboratory-confirmed SARS-CoV-2-related deaths between 24 February 2020 and 23 January 2022 in Switzerland. The bar at the bottom shows the probability that excess all-cause deaths is greater than laboratory-confirmed SARS-CoV-2-related deaths (light gray is 0, black is 1). Numbers at the top indicate epidemic phases 1 to 7. 
 
 
-```{r, fig.width=8,fig.height=3,fig.width=6}
+```{r, fig.width=8,fig.height=3.5,fig.width=6}
 da_404_plot_regbma(summ_regbma2,panel_labels = c("A","B"))
 ```
 
