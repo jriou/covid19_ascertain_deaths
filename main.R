@@ -89,22 +89,24 @@ if(FALSE) {
 }
 
 # Load outputs from the regression and Bayesian model averaging procedure
-regbma = readRDS("savepoint/combined_samples.rds")
-
-# Format outputs
-summ_regbma = da_401_format_regbma(regbma)
-
-# Plot
-da_402_plot_regbma(summ_regbma)
+# regbma = readRDS("savepoint/combined_samples_trun_temperature")
+# 
+# # Format outputs
+# summ_regbma = da_401_format_regbma(regbma)
+# 
+# # Plot
+# da_402_plot_regbma(summ_regbma)
 
 
 # Block 5: multilevel regression and BMA ----
 
 # Load outputs from the multilevel regression and Bayesian model averaging procedure
-regbma2 = readRDS("savepoint/combined_samples_trun")
+regbma2 = readRDS("savepoint/combined_samples_trun_temperature")
 
 # Format outputs
 summ_regbma2 = da_403_format_regbma2(regbma2)
 
 # Plot
 da_404_plot_regbma(summ_regbma2)
+
+regbma2$phase
