@@ -19,28 +19,26 @@ library(cowplot)
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 samp = readRDS("savepoint/merged_samples.rds")
-dat <- samp$samples_base
-class(samp$samples_base$canton_name)
 
-length(table(dat$canton_id))
-length(table(dat$canton_name))
+dat <- samp$samples_temp
+dat$canton <- as.character(dat$canton)
+dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
 
 dat %>% filter(!(phase %in% 7)) -> dat
-dat %>% group_by(canton_name, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
-
+dat %>% group_by(canton, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
 
 
 dat %>% 
   filter(it %in% 1) %>% 
-  group_by(canton_name, week) %>% 
+  group_by(canton, week) %>% 
   summarize(deaths = sum(deaths)) %>% 
   left_join(dat2plot, .) %>% 
   mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) %>% 
-  group_by(canton_name, week) %>% 
+  group_by(canton, week) %>% 
   summarize(relative_excess = median(relative_excess)) -> median_relative_excess
 
 median_relative_excess$x <- as.numeric(as.factor(median_relative_excess$week))
-median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$canton_name)) - 27)
+median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$canton)) - 27)
 median_relative_excess$median.rxs.cat <- cut(median_relative_excess$relative_excess*100, 
                                breaks = c(-200, 0, 10, 50, 100, 200, 1000), 
                                labels = c("0\u2264", "0-10", "10-50", "50-100", "100-200", ">200"), 
@@ -48,7 +46,7 @@ median_relative_excess$median.rxs.cat <- cut(median_relative_excess$relative_exc
 
 
 cols_exp <- brewer.pal(n = 11, name = "RdBu")[c(6, 5:1)]
-N <- length(unique(median_relative_excess$canton_name))
+N <- length(unique(median_relative_excess$canton))
 M <- length(unique(median_relative_excess$week))
 # face.g <- c("bold", rep("plain", times = N))
 
@@ -74,6 +72,7 @@ gPlot <- ggplot() +
   scale_fill_manual(values=cols_exp) + 
   theme_bw() + geom_raster(data = median_relative_excess, aes(x = x, y = y, fill = median.rxs.cat)) +
   scale_y_continuous(breaks = N:1,
+                     labels = levels(as.factor(median_relative_excess$canton)),
                      expand = expansion(mult = c(0, 0)))  + 
   scale_x_continuous(expand = expansion(mult = c(0, 0)), 
                      breaks = c(phase.x$min.x, max(phases %>% filter(phase != 7) %>% pull(x))), 
@@ -306,7 +305,7 @@ datCrI %>% filter(Type %in% "phase") %>%
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
-  ylim(c(-20, 40)) + 
+  scale_x_continuous(breaks = 1:6) + 
   theme_bw() + xlab("") + ylab("")  + 
   geom_hline(yintercept = 0, col = "red", linetype = "dotted") + 
   theme(text = element_text(size=8), 
@@ -321,7 +320,8 @@ datCrI %>% filter(Type %in% "phase") %>%
         legend.key.height = unit(0.3, "cm"),
         legend.key.width = unit(0.2, "cm"), 
         legend.position="bottom",
-        plot.margin = margin(0, 0, 0, 0, "cm")) -> p2
+        plot.margin = margin(0, 0, 0, 0, "cm")) + 
+  coord_cartesian(ylim = c(-20, 40)) -> p2
 
 
 datCrI %>% filter(Type %in% "age_group") %>% 
@@ -352,7 +352,7 @@ datCrI %>% filter(Type %in% "canton") %>%
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
-  scale_x_continuous(breaks = 1:25, labels = datCrI$categories[-c(1:12)]) + 
+  scale_x_continuous(breaks = 1:26, labels = datCrI$categories[-c(1:12)]) + 
   ylim(c(-20, 40)) + 
   theme_bw() + xlab("") + ylab("") + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
