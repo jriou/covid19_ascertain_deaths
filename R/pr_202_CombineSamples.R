@@ -14,7 +14,7 @@ setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 nam <- c("age_group", "canton", "phase", "Total")
 sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature"), readRDS)
-
+sampls[[2]]
 # retrieve 1000 of the combined posteriors
 lapply(sampls, function(X){
   Y <- do.call(rbind, X)
@@ -37,7 +37,11 @@ for(i in 1:length(nam)){
     by <- NULL
   }
   
-  samp$samples_temp %>% 
+  dat <- samp$samples_temp
+  dat$canton <- as.character(dat$canton)
+  dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
+  
+  dat %>% 
     group_by_at(vars("week", by, "it")) %>% 
     filter(it %in% 1:200, !(phase %in% 7)) %>% 
     summarise(deaths=sum(deaths), 
@@ -51,7 +55,10 @@ for(i in 1:length(nam)){
     dummies_interaction <- dummy_cols(dat[,by])[,-1]
     dummies_interaction <- colnames(dummies_interaction)
   }
-  colnames(combined_samples[[by]]) <- paste(colnames(combined_samples[[by]]), dummies_interaction, sep = ":")
+  
+  colnames(combined_samples[[by]]) <- 
+    c(paste(colnames(combined_samples[[by]])[1:c(2*length(dummies_interaction))], dummies_interaction, sep = ":"), 
+      "mean.beta[1]", "mean.beta[2]", "sd.beta[1]", "sd.beta[2]")
   
 }
 

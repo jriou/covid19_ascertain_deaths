@@ -50,6 +50,7 @@ temperature <- TRUE
 phase7 <- FALSE
 
 
+
 ##
 ##
 ## generic function to put in parallel, sets the mcmc setting, cleans the data, and compiles/runs the model
@@ -174,6 +175,9 @@ if(phase7==FALSE){
   dat %>% filter(it %in% 1:200) -> dat
 }
 
+dat$canton <- as.character(dat$canton)
+dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
+
 dat %>% 
   group_by_at(vars("week", by, "it")) %>% 
   summarise(deaths=sum(deaths), 
@@ -212,8 +216,6 @@ if(is.null(by) == FALSE){
   params <- c("beta")
 }
 
-
-
 # summary(glm(deaths ~ exp_deaths:age_group + labo_deaths:age_group -1, family = poisson(link = "identity"), data = dat))
 
 
@@ -246,7 +248,7 @@ saveRDS(result, file = paste0("savepoint/SamplesBMAtrun_", by, "_", nam))
 
 # by = NULL, takes ~20min
 # by = age_group, takes ~1h
-# by = canton, takes ~12h
+# by = canton, takes ~24h
 # by = phase, takes ~30min
 
 
