@@ -20,6 +20,11 @@ setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 samp = readRDS("savepoint/merged_samples.rds")
 dat <- samp$samples_base
+class(samp$samples_base$canton_name)
+
+length(table(dat$canton_id))
+length(table(dat$canton_name))
+
 dat %>% filter(!(phase %in% 7)) -> dat
 dat %>% group_by(canton_name, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
 
@@ -57,9 +62,10 @@ xlabs <- c(phases %>%
              group_by(phase) %>% 
              summarize(min.date = min(week)) %>% 
              pull(min.date), 
-           max(phases$week))
-
-
+           phases %>% 
+             filter(phase != 7) %>% 
+             pull(week) %>% 
+             max())
 
 
 gPlot <- ggplot() +  
@@ -68,7 +74,6 @@ gPlot <- ggplot() +
   scale_fill_manual(values=cols_exp) + 
   theme_bw() + geom_raster(data = median_relative_excess, aes(x = x, y = y, fill = median.rxs.cat)) +
   scale_y_continuous(breaks = N:1,
-                     labels = levels(as.factor(median_relative_excess$canton_name)), 
                      expand = expansion(mult = c(0, 0)))  + 
   scale_x_continuous(expand = expansion(mult = c(0, 0)), 
                      breaks = c(phase.x$min.x, max(phases %>% filter(phase != 7) %>% pull(x))), 
@@ -169,7 +174,222 @@ ggplot(shp2plot) +
         plot.margin = margin(0, 0, 0, 0, "cm")) -> maps
 
 
-png("Fig1.png", width = 16, height = 16, res = 300, units = "cm")
+png("savepoint/Fig1.png", width = 16, height = 16, res = 300, units = "cm")
 plot_grid(gPlot, maps, labels = "AUTO", ncol = 1, rel_widths = c(1, 2))
 dev.off()
 
+
+
+
+
+
+##
+## Another figure
+
+# Here I will get relative excess as Figure 2
+
+
+
+# Total
+
+dat %>% group_by(it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
+
+dat2plot %>% mutate(deaths = dat %>% 
+                      filter(it %in% 1) %>% 
+                      summarize(deaths = sum(deaths)) %>% 
+                      pull(deaths)) %>% 
+  mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) -> median_relative_excess
+
+  
+datCrI <- data.frame(Type = "Overall", 
+                     categories = NA, 
+                     median = median(median_relative_excess$relative_excess)*100, 
+                     LL = quantile(median_relative_excess$relative_excess, probs = 0.025)*100, 
+                     UL = quantile(median_relative_excess$relative_excess, probs = 0.975)*100)
+
+
+# by phase
+dat %>% group_by(phase, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
+
+dat %>% 
+  filter(it %in% 1) %>% 
+  group_by(phase) %>% 
+  summarize(deaths = sum(deaths)) %>% 
+  left_join(dat2plot, .) %>% 
+  mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) %>% 
+  group_by(phase) %>% 
+  summarize(median = median(relative_excess)*100, 
+            LL = quantile(relative_excess, probs = 0.025)*100, 
+            UL = quantile(relative_excess, probs = 0.975)*100) -> excess_relative_excess
+
+
+
+excess_relative_excess <- as.data.frame(cbind(Type = "phase", excess_relative_excess))
+colnames(excess_relative_excess)[2] <- "categories"
+
+datCrI <- rbind(datCrI, excess_relative_excess)
+
+
+# by age
+dat %>% group_by(age_group, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
+
+dat %>% 
+  filter(it %in% 1) %>% 
+  group_by(age_group) %>% 
+  summarize(deaths = sum(deaths)) %>% 
+  left_join(dat2plot, .) %>% 
+  mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) %>% 
+  group_by(age_group) %>% 
+  summarize(median = median(relative_excess)*100, 
+            LL = quantile(relative_excess, probs = 0.025)*100, 
+            UL = quantile(relative_excess, probs = 0.975)*100) -> excess_relative_excess
+
+
+
+excess_relative_excess <- as.data.frame(cbind(Type = "age_group", excess_relative_excess))
+colnames(excess_relative_excess)[2] <- "categories"
+
+datCrI <- rbind(datCrI, excess_relative_excess)
+
+
+
+# by canton
+dat %>% group_by(canton, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
+
+dat %>% 
+  filter(it %in% 1) %>% 
+  group_by(canton) %>% 
+  summarize(deaths = sum(deaths)) %>% 
+  left_join(dat2plot, .) %>% 
+  mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) %>% 
+  group_by(canton) %>% 
+  summarize(median = median(relative_excess)*100, 
+            LL = quantile(relative_excess, probs = 0.025)*100, 
+            UL = quantile(relative_excess, probs = 0.975)*100) -> excess_relative_excess
+
+
+
+excess_relative_excess <- as.data.frame(cbind(Type = "canton", excess_relative_excess))
+colnames(excess_relative_excess)[2] <- "categories"
+
+datCrI <- rbind(datCrI, excess_relative_excess)
+
+datCrI$categories[is.na(datCrI$categories)] <- "Overall"
+datCrI %>% group_by(Type) %>% mutate(x = as.numeric(as.factor(categories))) -> datCrI
+
+
+datCrI %>% filter(Type %in% "Overall") %>% 
+  ggplot() + 
+  geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
+  geom_point(aes(x = x, y = median), size = 1) + 
+  ylim(c(-20, 40)) + 
+  scale_x_continuous(breaks = 1, labels = "Overall") + 
+  theme_bw() + xlab("") + ylab("") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  geom_hline(yintercept = 0, col = "red", linetype = "dotted") + 
+  theme(text = element_text(size=8), 
+        plot.title = element_text(face = "bold"),
+        legend.key =
+          element_rect(fill = 'white', color = "white", size = 0.1),
+        legend.text = element_text(size = 7),
+        legend.box.background = element_rect(colour = "grey"), 
+        legend.background = element_blank(), 
+        legend.spacing.y = unit(.10, "mm"), 
+        legend.spacing.x = unit(0, "mm"), 
+        legend.key.height = unit(0.3, "cm"),
+        legend.key.width = unit(0.2, "cm"), 
+        legend.position="bottom",
+        plot.margin = margin(0, 0, 0, 0, "cm")) -> p1
+
+
+datCrI %>% filter(Type %in% "phase") %>% 
+  ggplot() + 
+  geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
+  geom_point(aes(x = x, y = median), size = 1) + 
+  ylim(c(-20, 40)) + 
+  theme_bw() + xlab("") + ylab("")  + 
+  geom_hline(yintercept = 0, col = "red", linetype = "dotted") + 
+  theme(text = element_text(size=8), 
+        plot.title = element_text(face = "bold"),
+        legend.key =
+          element_rect(fill = 'white', color = "white", size = 0.1),
+        legend.text = element_text(size = 7),
+        legend.box.background = element_rect(colour = "grey"), 
+        legend.background = element_blank(), 
+        legend.spacing.y = unit(.10, "mm"), 
+        legend.spacing.x = unit(0, "mm"), 
+        legend.key.height = unit(0.3, "cm"),
+        legend.key.width = unit(0.2, "cm"), 
+        legend.position="bottom",
+        plot.margin = margin(0, 0, 0, 0, "cm")) -> p2
+
+
+datCrI %>% filter(Type %in% "age_group") %>% 
+  ggplot() + 
+  geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
+  geom_point(aes(x = x, y = median), size = 1) + 
+  scale_x_continuous(breaks = 1:5, labels = c("0-39", "40-59", "60-69", "70-79", "80+")) + 
+  ylim(c(-20, 40)) + 
+  theme_bw() + xlab("") + ylab("") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  geom_hline(yintercept = 0, col = "red", linetype = "dotted") + 
+  theme(text = element_text(size=8), 
+        plot.title = element_text(face = "bold"),
+        legend.key =
+          element_rect(fill = 'white', color = "white", size = 0.1),
+        legend.text = element_text(size = 7),
+        legend.box.background = element_rect(colour = "grey"), 
+        legend.background = element_blank(), 
+        legend.spacing.y = unit(.10, "mm"), 
+        legend.spacing.x = unit(0, "mm"), 
+        legend.key.height = unit(0.3, "cm"),
+        legend.key.width = unit(0.2, "cm"), 
+        legend.position="bottom",
+        plot.margin = margin(0, 0, 0, 0, "cm")) -> p3
+
+
+datCrI %>% filter(Type %in% "canton") %>% 
+  ggplot() + 
+  geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
+  geom_point(aes(x = x, y = median), size = 1) + 
+  scale_x_continuous(breaks = 1:25, labels = datCrI$categories[-c(1:12)]) + 
+  ylim(c(-20, 40)) + 
+  theme_bw() + xlab("") + ylab("") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  geom_hline(yintercept = 0, col = "red", linetype = "dotted") + 
+  theme(text = element_text(size=8), 
+        plot.title = element_text(face = "bold"),
+        legend.key =
+          element_rect(fill = 'white', color = "white", size = 0.1),
+        legend.text = element_text(size = 7),
+        legend.box.background = element_rect(colour = "grey"), 
+        legend.background = element_blank(), 
+        legend.spacing.y = unit(.10, "mm"), 
+        legend.spacing.x = unit(0, "mm"), 
+        legend.key.height = unit(0.3, "cm"),
+        legend.key.width = unit(0.2, "cm"), 
+        legend.position="bottom",
+        plot.margin = margin(0, 0, 0, 0, "cm")) -> p4
+
+
+
+plot_grid(p1, p2, p3, p4, nrow = 1, rel_widths = c(2, 3, 3, 6)) -> likeres
+
+
+# datCrI %>% 
+#   ggplot() + 
+#   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
+#   geom_point(aes(x = x, y = median), size = 3) + facet_grid(cols = vars(Type), scale = "free_x")
+
+
+
+png("savepoint/Fig1_up.png", width = 16, height = 20, res = 300, units = "cm")
+plot_grid(likeres, maps, gPlot, labels = "AUTO", rel_widths = c(.8,2.2,1), ncol = 1)
+dev.off()
+
+
+
+
+png("savepoint/Fig1_up.png", width = 16, height = 16, res = 300, units = "cm")
+plot_grid(likeres, gPlot, labels = "AUTO", rel_widths = c(.8,2.2),  ncol = 1)
+dev.off()
