@@ -23,6 +23,7 @@ path_dashboard = "//adb.intra.admin.ch/BAG$/Teams/Krisen/2019_nCov/03 AG Lage/07
 
 # source functions ----
 fili = dir(path_script,pattern="da_[0123456789]")
+fili = fili[!grepl("407",fili)]
 lapply(X = fili, FUN = function(x) {source(paste0(path_script, x), echo=FALSE)} )
 
 # connections ----
