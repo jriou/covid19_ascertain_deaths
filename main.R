@@ -19,8 +19,8 @@ if(FALSE) { # ignored upon sourcing
   samp = da_103_merge(samp,labd)
   
   # Save point
-  saveRDS(samp,"savepoint/merged_samples.rds")
-  samp = readRDS("savepoint/merged_samples.rds")
+  saveRDS(samp,"savepoint/merged_samples2.rds")
+  samp = readRDS("savepoint/merged_samples2.rds")
   
   # Optional: reduce samples during development
   if(FALSE) {
@@ -40,11 +40,11 @@ if(FALSE) { # ignored upon sourcing
   summ_week_canton_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton","age_group"))
   
   # Save point
-  save(list=ls(pattern = "summ_"),file="savepoint/summ.Rdata")
+  save(list=ls(pattern = "summ_"),file="savepoint/summ2.Rdata")
 }
 
 # Start from save point upon sourcing
-load("savepoint/summ.Rdata")
+load("savepoint/summ2.Rdata")
 
 
 # Block 3: descriptive figures ----

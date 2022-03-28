@@ -12,7 +12,8 @@ da_002_load_lab_deaths <- function(limit) {
     # select deaths until limit
     dplyr::filter(pttod==1,!is.na(pttoddat),pttoddat<=limit) %>% 
     # rm FL
-    dplyr::filter(ktn != "FL") %>%
+    dplyr::mutate(canton=as.character(ktn)) %>% 
+    dplyr::filter(canton != "FL") %>%
     # filter out missing age
     dplyr::filter(!is.na(altersjahr)) %>%
     # create age group
@@ -24,7 +25,7 @@ da_002_load_lab_deaths <- function(limit) {
     dplyr::mutate(sex = ifelse(sex == "Weiblich", "female", "male")) %>% 
     # retain only useful variables
     dplyr::select(fall_id,
-                  canton = ktn, 
+                  canton, 
                   pttoddat,
                   age_group, 
                   sex
