@@ -31,18 +31,17 @@ if(FALSE) { # ignored upon sourcing
   samp = da_103_merge(samp,labd)
   
   # Save point ----
-  saveRDS(samp,"savepoint/merged_samples.rds")
+  saveRDS(samp,"savepoint/merged_samples2.rds")
 }
 
 # Start from save point upon sourcing ----
-samp = readRDS("savepoint/merged_samples.rds")
+samp = readRDS("savepoint/merged_samples2.rds")
 
 # Reduce samples during development ----
 if(FALSE) {
   samp$samples_base = dplyr::filter(samp$samples_base,it<=100)
   samp$samples_temp = dplyr::filter(samp$samples_temp,it<=100)
 }
-
 
 # select to use the predictions including the temperature
 temperature <- TRUE
@@ -155,7 +154,7 @@ mod <- nimbleCode(
 
 by <- NULL # this corresponds to total
 by <- "age_group"
-by <- "canton"
+by <- "canton_name"
 by <- "phase"
 
 # select samples and exclude phase 7
@@ -175,8 +174,6 @@ if(phase7==FALSE){
   dat %>% filter(it %in% 1:200) -> dat
 }
 
-dat$canton <- as.character(dat$canton)
-dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
 
 dat %>% 
   group_by_at(vars("week", by, "it")) %>% 
@@ -200,7 +197,7 @@ if(is.null(by) == FALSE){
     colnames(labo_deaths_interaction) <- c("labo_int_0_39", "labo_int_40_59", "labo_int_60_69", "labo_int_70_79", "labo_int_80")
   }
   
-  if(by == "canton" | by == "phase"){
+  if(by == "canton_name" | by == "phase"){
     colnames(exp_deaths_interaction) <- 
       paste0("exp_int_", colnames(exp_deaths_interaction))
     colnames(labo_deaths_interaction) <- 
@@ -251,14 +248,12 @@ saveRDS(result, file = paste0("savepoint/SamplesBMAtrun_", by, "_", nam))
 # by = canton, takes ~24h
 # by = phase, takes ~30min
 
-
 ########################################################################
 ########################################################################
 ########################################################################
 ########################################################################
 ########################################################################
 ########################################################################
-
 
 
 

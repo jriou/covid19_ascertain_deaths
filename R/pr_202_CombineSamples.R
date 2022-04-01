@@ -12,7 +12,7 @@ library(fastDummies)
 
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
-nam <- c("age_group", "canton", "phase", "Total")
+nam <- c("age_group", "canton_name", "phase", "Total")
 sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature"), readRDS)
 
 # retrieve 1000 of the combined posteriors
@@ -26,11 +26,11 @@ names(combined_samples) <- nam
 
 # need to go back and retrieve the names of the coefficients, thus i need the results
 # of the INLA modelling.
-samp = readRDS("savepoint/merged_samples.rds")
+samp = readRDS("savepoint/merged_samples2.rds")
 
 
 for(i in 1:length(nam)){
-  
+  print(i)
   by <- nam[i]
   
   if(by == "Total"){
@@ -38,8 +38,6 @@ for(i in 1:length(nam)){
   }
   
   dat <- samp$samples_temp
-  dat$canton <- as.character(dat$canton)
-  dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
   
   dat %>% 
     group_by_at(vars("week", by, "it")) %>% 
