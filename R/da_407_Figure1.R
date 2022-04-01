@@ -39,7 +39,7 @@ median_relative_excess$x <- as.numeric(as.factor(median_relative_excess$week))
 median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$canton_name)) - 27)
 median_relative_excess$median.rxs.cat <- cut(median_relative_excess$relative_excess*100, 
                                breaks = c(-200, 0, 10, 50, 100, 200, 1000), 
-                               labels = c("0\u2264", "0-10", "10-50", "50-100", "100-200", ">200"), 
+                               labels = c("0%\u2264", "0-10%", "10-50%", "50-100%", "100-200%", ">200%"), 
                                include.lowest = FALSE) 
 
 
@@ -109,11 +109,11 @@ gPlot <- ggplot() +
     legend.position = "bottom", 
     legend.margin=margin(0,0,0,0),
     legend.box.margin=margin(-10,-10,0,-10)
-  ) + ylab("") + xlab("")  + 
+  )+
+  guides(fill = guide_legend(nrow = 1)) + ylab("") + xlab("")  + 
   geom_vline(xintercept = phase.x$min.x[-1], col = "black", size = .5, alpha = 1) + 
   annotate("label", x = phase.annotate$mean, y = 27.5, label = phase.annotate$phase, size = 2) + 
-  coord_cartesian(ylim = c(0.5, N+0.5), clip = 'off') +
-  guides(color = guide_legend(ncol = 1))
+  coord_cartesian(ylim = c(0.5, N+0.5), clip = 'off') 
 gPlot
 
 
