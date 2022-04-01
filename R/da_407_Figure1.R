@@ -18,27 +18,25 @@ library(cowplot)
 
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
-samp = readRDS("savepoint/merged_samples.rds")
+samp = readRDS("savepoint/merged_samples2.rds")
 
 dat <- samp$samples_temp
-dat$canton <- as.character(dat$canton)
-dat$canton[dat$canton_name %in% "Aargau"] <- "AG"
 
 dat %>% filter(!(phase %in% 7)) -> dat
-dat %>% group_by(canton, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
+dat %>% group_by(canton_name, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
 
 
 dat %>% 
   filter(it %in% 1) %>% 
-  group_by(canton, week) %>% 
+  group_by(canton_name, week) %>% 
   summarize(deaths = sum(deaths)) %>% 
   left_join(dat2plot, .) %>% 
   mutate(relative_excess = (deaths - exp_deaths)/exp_deaths) %>% 
-  group_by(canton, week) %>% 
+  group_by(canton_name, week) %>% 
   summarize(relative_excess = median(relative_excess)) -> median_relative_excess
 
 median_relative_excess$x <- as.numeric(as.factor(median_relative_excess$week))
-median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$canton)) - 27)
+median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$canton_name)) - 27)
 median_relative_excess$median.rxs.cat <- cut(median_relative_excess$relative_excess*100, 
                                breaks = c(-200, 0, 10, 50, 100, 200, 1000), 
                                labels = c("0\u2264", "0-10", "10-50", "50-100", "100-200", ">200"), 
@@ -46,7 +44,7 @@ median_relative_excess$median.rxs.cat <- cut(median_relative_excess$relative_exc
 
 
 cols_exp <- brewer.pal(n = 11, name = "RdBu")[c(6, 5:1)]
-N <- length(unique(median_relative_excess$canton))
+N <- length(unique(median_relative_excess$canton_name))
 M <- length(unique(median_relative_excess$week))
 # face.g <- c("bold", rep("plain", times = N))
 
@@ -65,14 +63,25 @@ xlabs <- c(phases %>%
              pull(week) %>% 
              max())
 
+linktab <- data.frame(
+  cantonID = c("AG", "AR", "AI", "BL", "BS", 
+               "BE", "FR", "GE", "GL", "GR",
+               "JU", "LU", "NE", "NW", "OW",
+               "SH", "SZ", "SO", "SG", "TG",
+               "TI", "UR", "VS", "VD", "ZG", "ZH"), 
+  cantonname = levels(factor(median_relative_excess$canton_name))
+)
+
+median_relative_excess <- left_join(median_relative_excess, linktab, by = c("canton_name" = "cantonname"))
+median_relative_excess$y <- abs(as.numeric(as.factor(median_relative_excess$cantonID)) - 27)
 
 gPlot <- ggplot() +  
   # ylim(c(0, c(N+2))) + 
   xlim(c(0, M)) + 
-  scale_fill_manual(values=cols_exp) + 
+  scale_fill_manual(values=cols_exp, na.translate = F) + 
   theme_bw() + geom_raster(data = median_relative_excess, aes(x = x, y = y, fill = median.rxs.cat)) +
   scale_y_continuous(breaks = N:1,
-                     labels = levels(as.factor(median_relative_excess$canton)),
+                     labels = levels(factor(median_relative_excess$cantonID)),
                      expand = expansion(mult = c(0, 0)))  + 
   scale_x_continuous(expand = expansion(mult = c(0, 0)), 
                      breaks = c(phase.x$min.x, max(phases %>% filter(phase != 7) %>% pull(x))), 
@@ -81,7 +90,7 @@ gPlot <- ggplot() +
   theme( # remove the vertical grid lines
     panel.grid.major.x = element_blank() ,
     # explicitly set the horizontal lines (or they will disappear too)
-    plot.margin = margin(0.7, 0, 0, 0, "cm"), 
+    plot.margin = margin(0.7, .3, 0, 0, "cm"), 
     panel.grid.major.y = element_blank(), 
     panel.grid.minor.x = element_blank(), 
     panel.grid.minor.y = element_line( size=.1, color="black" ),
@@ -96,11 +105,15 @@ gPlot <- ggplot() +
     plot.subtitle = element_text(size = 7, face = "bold", margin=margin(0,0,0,0)), 
     legend.key.height = unit(0.3, "cm"),
     legend.key.width = unit(0.2, "cm"), 
-    legend.text = element_text(size = 7)
-  ) + ylab("") + xlab("") +
+    legend.text = element_text(size = 7), 
+    legend.position = "bottom", 
+    legend.margin=margin(0,0,0,0),
+    legend.box.margin=margin(-10,-10,0,-10)
+  ) + ylab("") + xlab("")  + 
   geom_vline(xintercept = phase.x$min.x[-1], col = "black", size = .5, alpha = 1) + 
   annotate("label", x = phase.annotate$mean, y = 27.5, label = phase.annotate$phase, size = 2) + 
-  coord_cartesian(ylim = c(0.5, N+0.5), clip = 'off')
+  coord_cartesian(ylim = c(0.5, N+0.5), clip = 'off') +
+  guides(color = guide_legend(ncol = 1))
 gPlot
 
 
@@ -277,7 +290,7 @@ datCrI$categories[is.na(datCrI$categories)] <- "Overall"
 datCrI %>% group_by(Type) %>% mutate(x = as.numeric(as.factor(categories))) -> datCrI
 
 
-datCrI %>% filter(Type %in% "Overall") %>% 
+datCrI %>% filter(Type %in% "Overall") %>% mutate(title = "") %>% 
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
@@ -298,10 +311,11 @@ datCrI %>% filter(Type %in% "Overall") %>%
         legend.key.height = unit(0.3, "cm"),
         legend.key.width = unit(0.2, "cm"), 
         legend.position="bottom",
-        plot.margin = margin(0, 0, 0, 0, "cm")) -> p1
+        plot.margin = margin(0, 0, 0, 0, "cm")) + 
+  facet_grid(. ~ title) -> p1
 
 
-datCrI %>% filter(Type %in% "phase") %>% 
+datCrI %>% filter(Type %in% "phase") %>% mutate(title = "By epidemic phase") %>% 
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
@@ -320,11 +334,14 @@ datCrI %>% filter(Type %in% "phase") %>%
         legend.key.height = unit(0.3, "cm"),
         legend.key.width = unit(0.2, "cm"), 
         legend.position="bottom",
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(),
         plot.margin = margin(0, 0, 0, 0, "cm")) + 
-  coord_cartesian(ylim = c(-20, 40)) -> p2
+  coord_cartesian(ylim = c(-20, 40)) + 
+  facet_grid(. ~ title) -> p2
 
 
-datCrI %>% filter(Type %in% "age_group") %>% 
+datCrI %>% filter(Type %in% "age_group") %>% mutate(title = "By age group") %>% 
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
@@ -345,10 +362,13 @@ datCrI %>% filter(Type %in% "age_group") %>%
         legend.key.height = unit(0.3, "cm"),
         legend.key.width = unit(0.2, "cm"), 
         legend.position="bottom",
-        plot.margin = margin(0, 0, 0, 0, "cm")) -> p3
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(),
+        plot.margin = margin(0, 0, 0, 0, "cm")) + 
+  facet_grid(. ~ title) -> p3
 
 
-datCrI %>% filter(Type %in% "canton") %>% 
+datCrI %>% filter(Type %in% "canton") %>% mutate(title = "By canton") %>% 
   ggplot() + 
   geom_errorbar(aes(x = x, ymin = LL, ymax = UL), width = 0) + 
   geom_point(aes(x = x, y = median), size = 1) + 
@@ -369,11 +389,16 @@ datCrI %>% filter(Type %in% "canton") %>%
         legend.key.height = unit(0.3, "cm"),
         legend.key.width = unit(0.2, "cm"), 
         legend.position="bottom",
-        plot.margin = margin(0, 0, 0, 0, "cm")) -> p4
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(),
+        plot.margin = margin(0, 0, 0, 0, "cm")) + 
+  facet_grid(. ~ title) -> p4
 
 
 
-plot_grid(p1, p2, p3, p4, nrow = 1, rel_widths = c(2, 3, 3, 6)) -> likeres
+plot_grid(p1, p2, p3, p4, 
+          nrow = 1, rel_widths = c(2, 3, 3, 6), 
+          align = "h") -> likeres
 
 
 # datCrI %>% 
@@ -382,14 +407,10 @@ plot_grid(p1, p2, p3, p4, nrow = 1, rel_widths = c(2, 3, 3, 6)) -> likeres
 #   geom_point(aes(x = x, y = median), size = 3) + facet_grid(cols = vars(Type), scale = "free_x")
 
 
-
-png("savepoint/Fig1_up.png", width = 16, height = 20, res = 300, units = "cm")
-plot_grid(likeres, maps, gPlot, labels = "AUTO", rel_widths = c(.8,2.2,1), ncol = 1)
-dev.off()
-
-
-
-
 png("savepoint/Fig1_up.png", width = 16, height = 16, res = 300, units = "cm")
-plot_grid(likeres, gPlot, labels = "AUTO", rel_widths = c(.8,2.2),  ncol = 1)
+plot_grid(likeres, gPlot, labels = "AUTO", 
+          rel_widths = c(.8,2.2),  ncol = 1, 
+          rel_heights = c(.8,1.5))
 dev.off()
+
+
