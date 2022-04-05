@@ -38,7 +38,7 @@ da_101_clean_samples <- function(dat) {
                   age_group=factor(age,
                                    levels=c("less40","40-59","60-69","70-79","80plus"),
                                    labels=age_classes),
-                  canton=factor(canton),
+                  canton=as.character(canton),
                   canton=if_else(canton_id=="CH033","AG",canton)) %>%
     dplyr::filter(canton != "FL") %>%
     tidyr::pivot_longer(cols=starts_with("V")) %>% 

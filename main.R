@@ -20,7 +20,7 @@ if(FALSE) { # ignored upon sourcing
   
   # Save point
   saveRDS(samp,"savepoint/merged_samples2.rds")
-  samp = readRDS("savepoint/merged_samples2.rds")
+  samp = readRDS("savepoint/merged_samples3.rds")
   
   # Optional: reduce samples during development
   if(FALSE) {
@@ -40,11 +40,11 @@ if(FALSE) { # ignored upon sourcing
   summ_week_canton_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton","age_group"))
   
   # Save point
-  save(list=ls(pattern = "summ_"),file="savepoint/summ2.Rdata")
+  save(list=ls(pattern = "summ_"),file="savepoint/summ3.Rdata")
 }
 
 # Start from save point upon sourcing
-load("savepoint/summ2.Rdata")
+load("savepoint/summ3.Rdata")
 
 
 # Block 3: descriptive figures ----
@@ -55,7 +55,7 @@ summ_week_base %>%
 summ_week_temp %>% 
   da_301_summary_plot()
 summ_week_canton_base %>% 
-  dplyr::filter(canton=="ZH") %>% 
+  dplyr::filter(canton=="AG") %>% 
   da_301_summary_plot()
 
 # Linear model base (ignoring uncertainty for now)

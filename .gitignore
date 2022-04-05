@@ -1,5 +1,6 @@
 # Data
 /savepoint/*
+/samples/*
 
 # History files
 .Rhistory

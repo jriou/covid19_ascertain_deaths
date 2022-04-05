@@ -4,6 +4,11 @@
 #:::::::::::::::::::::::::::::
 
 da_301_summary_plot <- function(dat) {
+  # filter
+  dat = dat %>% 
+    dplyr::filter(week<as.Date("2021-12-20"))
+  date_phases2 = date_phases %>% 
+    dplyr::filter(start_date<as.Date("2021-12-20"))
   # sort out limits
   lims = c(min(dat$excess_upb)*1.1,max(dat$excess_upb)*1.15)
   # plot weekly counts
@@ -13,10 +18,10 @@ da_301_summary_plot <- function(dat) {
     geom_ribbon(aes(ymin=excess_lob,ymax=excess_upb,fill=col_excess1),alpha=.3) +
     geom_line(aes(y=labo_deaths,col="col")) +
     geom_point(aes(y=labo_deaths,col="col"),shape=21,fill="white") +
-    geom_label(data=date_phases,aes(x=start_date+(end_date-start_date)/2,y=lims[2],label=phase),size=2.5,colour="grey50") +
+    geom_label(data=date_phases2,aes(x=start_date+(end_date-start_date)/2,y=lims[2],label=phase),size=2.5,colour="grey50") +
     labs(x=NULL,y="Weekly count") +
     scale_x_date(date_labels = "%e %b\n%Y",
-                 breaks=c(date_phases$start_date,max(date_phases$end_date)),
+                 breaks=c(date_phases2$start_date,max(date_phases2$end_date)),
                  minor_breaks = NULL,
                  expand=expansion(add=c(4,10))) +
     scale_y_continuous(expand=expansion(mult=c(0.1,0.08))) + 

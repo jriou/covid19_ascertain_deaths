@@ -33,7 +33,7 @@ link = readRDS("data/link_caterpilar")
 cantons_ids = read_csv2("data/correspondance.csv")
 breaks_age_classes = c(0,40,60,70,80,150)
 age_classes = c("0-39","40-59","60-69","70-79","80+")
-phases = readRDS("data/phases.rds")
+phases = readRDS("data/phases.rds") 
 date_phases = phases %>%
   dplyr::mutate(phase=as.character(phase)) %>%
   dplyr::group_by(phase) %>%
