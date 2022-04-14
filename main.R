@@ -9,18 +9,18 @@ if(FALSE) { # ignored upon sourcing
   
   # Block 0: apply model to estimate excess mortality from https://www.nature.com/articles/s41467-022-28157-3
   
-  # Block 1: load samples and laboratory-confirmed deaths ----
+  # Block 1: load samples of expected deaths from historical trends ----
   samp = da_001_load_samples()
-  labd = da_002_load_lab_deaths(end_date)
+  # labd = da_002_load_lab_deaths()
   
   # Block 2: data management ----
   samp = da_101_clean_samples(samp)
-  labd = da_102_clean_lab_deaths(labd)
+  # labd = da_102_clean_lab_deaths(labd)
   samp = da_103_merge(samp,labd)
   
   # Save point
-  saveRDS(samp,"savepoint/merged_samples2.rds")
-  samp = readRDS("savepoint/merged_samples3.rds")
+  saveRDS(samp,"savepoint/merged_samples4.rds")
+  samp = readRDS("savepoint/merged_samples4.rds")
   
   # Optional: reduce samples during development
   if(FALSE) {
