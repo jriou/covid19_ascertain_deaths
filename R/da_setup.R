@@ -11,6 +11,8 @@ library(lubridate)
 library(sf)
 library(readxl)
 library(flextable)
+library(ISOweek)
+library(data.table)
 
 # manage encoding ----
 # Sys.setlocale("LC_CTYPE","french")

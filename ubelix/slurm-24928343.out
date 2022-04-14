@@ -1,0 +1,11 @@
+Study: sweeping rx and ry parameters 
+   - ra from 1 to 4 with 1 increment
+   - rb from 1 to 3 with 1 increment
+   - rc from 1 to 3 with 1 increment
+   - rd from 1 to 3 with 1 increment
+   - re from 1 to 3 with 1 increment
+   - rf from 1 to 1 with 1 increment
+   - rg from 1 to 3 with 1 increment
+   - rh from 1 to 1 with 1 increment
+Saving parameters in parameters8.txt
+972 different parameters combinations
