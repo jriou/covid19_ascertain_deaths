@@ -18,11 +18,12 @@ library(cowplot)
 
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
-samp = readRDS("savepoint/merged_samples2.rds")
+samp = readRDS("savepoint/merged_samples4.rds")
 
-dat <- samp$samples_temp
+dat <- samp
 
 dat %>% filter(!(phase %in% 7)) -> dat
+dat$it <- as.numeric(as.factor(dat$it))
 dat %>% group_by(canton_name, week, it) %>% summarize(exp_deaths = sum(exp_deaths)) -> dat2plot
 
 
