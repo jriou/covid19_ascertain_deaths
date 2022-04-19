@@ -16,7 +16,7 @@ da_102_clean_lab_deaths <- function(dat=NULL) {
       dplyr::ungroup()
   } 
   # start from savepoint
-  dat = readRDS("savepoint/merged_samples2.rds")
+  dat = readRDS("savepoint/merged_samples.rds")
   labo_deaths = dat$samples_temp %>% 
     dplyr::select(year,week,canton,canton_id,canton_name,age_group,sex,labo_deaths) %>% 
     dplyr::distinct()
