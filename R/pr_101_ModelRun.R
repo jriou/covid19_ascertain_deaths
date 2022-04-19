@@ -24,7 +24,7 @@ INLA:::inla.dynload.workaround()
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/") 
 
 # select if you want the predictions to include
-add.temperature <- FALSE
+add.temperature <- TRUE
 
 
 finaldb=readRDS("data/fin")
@@ -93,41 +93,70 @@ control.family=inla.set.control.family.default()
 
 
 
-in.mod = inla(formula,
-              data=datCV_firslop,
-              family="Poisson",  
-              verbose = TRUE, 
-              control.family=control.family,
-              control.compute=list(config = TRUE), 
-              control.mode=list(theta=thet, restart=T),
-              num.threads = round(parallel::detectCores()*.1), 
-              control.predictor = list(link = 1))
+# read population samples
+pop.list <- readRDS("savepoint/popfinCH_list")
+
+
+
+# here i have predicted 2022 just in case we update the analysis
+
+funpar <- function(X){
+  pop.tmp <- pop.list[[X]] %>% filter(year != 2022) 
+  pop.tmp$year <- NULL
+  head(pop.tmp)
+  head(datCV_firslop)
+  
+  datCV_firslop.tmp <- left_join(datCV_firslop, pop.tmp, 
+                                 by = c("age.group" = "age", 
+                                        "sex" = "sex", 
+                                        "EURO_LABEL" = "EURO_LABEL", 
+                                        "NAME.POP" = "NUTS318CD"))
+  
+  colnames(datCV_firslop.tmp)[colnames(datCV_firslop.tmp) %in% "population.y"] <- "population"
+  
+  in.mod = inla(formula,
+                data=datCV_firslop,
+                family="Poisson",  
+                verbose = TRUE, 
+                control.family=control.family,
+                control.compute=list(config = TRUE), 
+                control.mode=list(theta=thet, restart=T),
+                num.threads = 1, 
+                control.predictor = list(link = 1))
+  
+  
+  
+  
+  # now I need to sample from a Poisson
+  post.samples <- inla.posterior.sample(n = 1000, result = in.mod, seed = 11)
+  predlist <- do.call(cbind,
+                      lapply(post.samples,
+                             function(X) exp(X$latent[startsWith(rownames(X$latent), "Pred")])))
+  
+  pois.samples <- apply(predlist, 2,
+                        function(Z) rpois(n = length(Z), lambda = Z))
+  pois.samples <- as.data.frame(pois.samples)
+  
+  pois.samples$EURO_LABEL <- datCV_firslop$EURO_LABEL
+  pois.samples$ID_space <- datCV_firslop$ID_space
+  pois.samples$NAME.POP <- datCV_firslop$NAME.POP
+  pois.samples$deaths <- data$deaths 
+  pois.samples$population <- datCV_firslop$population 
+  pois.samples$year <- datCV_firslop$year
+  pois.samples$age.group <- datCV_firslop$age.group 
+  pois.samples$sex <- datCV_firslop$sex
+  pois.samples$year <- datCV_firslop$year
+  
+  return(pois.samples)
+}
 
 
 
 
-# now I need to sample from a Poisson
 
 
-set.seed(11)
-post.samples <- inla.posterior.sample(n = 1000, result = in.mod)
-predlist <- do.call(cbind,
-                    lapply(post.samples,
-                           function(X) exp(X$latent[startsWith(rownames(X$latent), "Pred")])))
 
-pois.samples <- apply(predlist, 2,
-                      function(Z) rpois(n = length(Z), lambda = Z))
-pois.samples <- as.data.frame(pois.samples)
 
-pois.samples$EURO_LABEL <- datCV_firslop$EURO_LABEL
-pois.samples$ID_space <- datCV_firslop$ID_space
-pois.samples$NAME.POP <- datCV_firslop$NAME.POP
-pois.samples$deaths <- data$deaths 
-pois.samples$population <- datCV_firslop$population 
-pois.samples$year <- datCV_firslop$year
-pois.samples$age.group <- datCV_firslop$age.group 
-pois.samples$sex <- datCV_firslop$sex
-pois.samples$year <- datCV_firslop$year
 
 if(add.temperature){
   saveRDS(pois.samples, file = "savepoint/pois.samples.withtemperature")

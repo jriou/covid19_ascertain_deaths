@@ -13,12 +13,17 @@ library(fastDummies)
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 nam <- c("age_group", "canton_name", "phase", "Total")
-sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature"), readRDS)
+ext <- "corrected" # corrected_OV, corrected_OV_0.01, corrected_OV_0.001
+sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature_", ext), readRDS)
 
-# retrieve 1000 of the combined posteriors
+set.seed(11)
+# retrieve 1000 of the combined posteriors and remove the u-s
 lapply(sampls, function(X){
   Y <- do.call(rbind, X)
-  return(Y[sample(1:nrow(Y), size = 1000),])
+  Y <- Y[sample(1:nrow(Y), size = 1000),]
+  Y <- as_tibble(Y)
+  Y %>% select(starts_with("beta") | starts_with("mean") | starts_with("sd")) -> Y
+  return(Y)
 }) -> combined_samples
 
 names(combined_samples) <- nam
@@ -26,7 +31,7 @@ names(combined_samples) <- nam
 
 # need to go back and retrieve the names of the coefficients, thus i need the results
 # of the INLA modelling.
-samp = readRDS("savepoint/merged_samples2.rds")
+samp = readRDS("savepoint/merged_samples4.rds")
 
 
 for(i in 1:length(nam)){
@@ -37,13 +42,17 @@ for(i in 1:length(nam)){
     by <- NULL
   }
   
-  dat <- samp$samples_temp
+  dat <- samp
+  
+  set.seed(11)
+  ran.sam.it <- sample(1:1000, size = 200)
+  dat$it <- as.numeric(as.factor(dat$it))
+  dat %>% filter(it %in% ran.sam.it, !(phase %in% 7)) -> dat
   
   dat %>% 
     group_by_at(vars("week", by, "it")) %>% 
-    filter(it %in% 1:200, !(phase %in% 7)) %>% 
     summarise(deaths=sum(deaths), 
-              exp_deaths = sum(exp_deaths),
+              exp_deaths = sum(corr_exp_deaths),
               labo_deaths = sum(labo_deaths)) -> dat
   
   if(is.null(by)){
@@ -61,7 +70,7 @@ for(i in 1:length(nam)){
   }
 }
 
-saveRDS(combined_samples, file = "savepoint/combined_samples_trun_temperature")
+saveRDS(combined_samples, file = paste0("savepoint/combined_samples_trun_temperature_", ext))
 
 # get the summary statistics
 lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025, 0.975)))
