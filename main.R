@@ -9,18 +9,19 @@ if(FALSE) { # ignored upon sourcing
   
   # Block 0: apply model to estimate excess mortality from https://www.nature.com/articles/s41467-022-28157-3
   
-  # Block 1: load samples and laboratory-confirmed deaths ----
+  # Block 1: load samples of expected deaths from historical trends ----
   samp = da_001_load_samples()
-  labd = da_002_load_lab_deaths(end_date)
+  # labd = da_002_load_lab_deaths()
   
   # Block 2: data management ----
   samp = da_101_clean_samples(samp)
+  samp = da_104_get_excess(samp)
   labd = da_102_clean_lab_deaths(labd)
-  samp = da_103_merge(samp,labd)
+  merg = da_103_merge(samp,labd)
   
   # Save point
-  saveRDS(samp,"savepoint/merged_samples2.rds")
-  samp = readRDS("savepoint/merged_samples2.rds")
+  saveRDS(samp,"savepoint/merged_samples4.rds")
+  samp = readRDS("savepoint/merged_samples4.rds")
   
   # Optional: reduce samples during development
   if(FALSE) {
@@ -29,34 +30,48 @@ if(FALSE) { # ignored upon sourcing
   }
   
   # Block 2: summarize ----
-  summ_all_base = da_201_summarise_by(samp$samples_base,by=NULL)
-  summ_all_temp = da_201_summarise_by(samp$samples_temp,by=NULL)
-  summ_week_base = da_201_summarise_by(samp$samples_base,by=c("week"))
-  summ_week_temp = da_201_summarise_by(samp$samples_temp,by=c("week"))
-  summ_phase_base = da_201_summarise_by(samp$samples_base,by=c("phase"))
-  summ_phase_canton = da_201_summarise_by(samp$samples_base,by=c("phase","canton"))
-  summ_week_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","age_group"))
-  summ_week_canton_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton"))
-  summ_week_canton_age_base = da_201_summarise_by(samp$samples_base,by=c("phase","week","canton","age_group"))
+  summ_all_temp = da_201_summarise_by(merg,by=NULL)
+  summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
   
+  summ_week_temp = da_201_summarise_by(merg,by=c("week"))
+  summ_week_temp_corr = da_202_summarise_by_corr(merg,by=c("week"))
+  
+  summ_age_temp = da_201_summarise_by(merg,by=c("age_group"))
+  summ_age_temp_corr = da_202_summarise_by_corr(merg,by=c("age_group"))
+  
+  summ_phase_temp = da_201_summarise_by(merg,by=c("phase"))
+  summ_phase_temp_corr = da_202_summarise_by_corr(merg,by=c("phase"))
+  
+  summ_week_canton_temp = da_201_summarise_by(merg,by=c("phase","week","canton"))
+  summ_week_canton_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","canton"))
+  
+  summ_week_age_temp = da_201_summarise_by(merg,by=c("phase","week","age_group"))
+  summ_week_age_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","age_group"))
+
   # Save point
-  save(list=ls(pattern = "summ_"),file="savepoint/summ2.Rdata")
+  save(list=ls(pattern = "summ_"),file="savepoint/summ3.Rdata")
 }
 
 # Start from save point upon sourcing
-load("savepoint/summ2.Rdata")
+load("savepoint/summ3.Rdata")
 
 
 # Block 3: descriptive figures ----
 
 # Laboratory-confirmed deaths and excess death over time
-summ_week_base %>% 
-  da_301_summary_plot()
+
 summ_week_temp %>% 
   da_301_summary_plot()
-summ_week_canton_base %>% 
-  dplyr::filter(canton=="ZH") %>% 
+summ_week_temp_corr %>% 
+  da_302_summary_plot_corr()
+
+
+summ_week_age_temp %>% 
+  dplyr::filter(age_group=="80+") %>% 
   da_301_summary_plot()
+summ_week_age_temp_corr %>% 
+  dplyr::filter(age_group=="80+") %>% 
+  da_302_summary_plot_corr()
 
 # Linear model base (ignoring uncertainty for now)
 summ_week_base %>% 

@@ -8,10 +8,20 @@ da_404_plot_regbma <- function(x,panel_labels=NULL) {
   col1="firebrick"
   col2="cornflowerblue"
   
+  # reformat cantons
+  x = x %>% 
+    dplyr::mutate(group=dplyr::case_when(group=="Appenzell Ausserrhoden" ~ "Appenzell Ausser.",
+                                         group=="Appenzell Innerrhoden" ~ "Appenzell Inner.",
+                                         group=="Bern / Berne" ~ "Bern",
+                                         group=="Fribourg / Freiburg" ~ "Fribourg",
+                                         group=="Graubünden / Grigioni / Grischun" ~ "Graubünden",
+                                         group=="Valais / Wallis" ~ "Valais",
+                                         TRUE ~ group))
+  
   # format data
   x_form = x %>% 
     dplyr::mutate(type2=factor(type,
-                               levels=c("tot","phase","agegroup","canton"),
+                               levels=c("overall","phase","agegroup","canton"),
                                labels=c("","By epidemic phase","By age group","By canton")))
   
   # coefficient for covid-19 deaths
@@ -33,7 +43,7 @@ da_404_plot_regbma <- function(x,panel_labels=NULL) {
     # scale_colour_gradient2(low="red",mid="orange",high="skyblue",midpoint = 0.1,trans="pseudo_log") +
     facet_grid(. ~ type2,scales="free",space = "free") +
     scale_y_continuous() +
-    coord_cartesian(ylim=c(0,5)) +
+    coord_cartesian(ylim=c(0,3.5)) +
     theme(axis.text.x=element_text(angle=90,vjust=.5,hjust=1)) +
     labs(x=NULL,y=expression(beta[1])) +
     theme(strip.text=element_text(size=7))
@@ -54,7 +64,7 @@ da_404_plot_regbma <- function(x,panel_labels=NULL) {
     geom_pointrange(aes(x=group,y=beta_med,ymin=beta_lb,ymax=beta_ub),colour=col2,size=.3) +
     facet_grid(. ~ type2,scales="free",space = "free") +
     scale_y_continuous(breaks=seq(0,2,by=.1)) +
-    coord_cartesian(ylim=c(.6,1.1)) +
+    coord_cartesian(ylim=c(.75,1.05)) +
     theme(axis.text.x=element_text(angle=90,vjust=0.5,hjust=1)) +
     labs(x=NULL,y=expression(beta[2]))+
     theme(strip.text=element_text(size=7))

@@ -1,0 +1,52 @@
+#! /bin/bash
+#SBATCH --mail-user=anthony.hauser@ispm.unibe.ch
+#SBATCH --mail-type=end,fail
+#SBATCH --time=48:00:00
+#SBATCH --mem-per-cpu=2G
+#SBATCH --array=1-108
+#SBATCH --output="outfiles/slurm-%A_%a.out"
+#SBATCH --cpus-per-task=4
+
+PROJECT="usb_efficient_seir"
+MODEL="mod1"
+JOB1="${SLURM_ARRAY_JOB_ID}"
+JOB2=${SLURM_ARRAY_TASK_ID}
+
+
+# load module 
+module load R/4.1.0-foss-2021a
+#module load GCC/10.3.0
+
+# Increase C stack size
+ulimit -s 16384
+echo "Increased C stack size to $(ulimit -s)"
+
+# Sweeping parameters.txt
+N=${SLURM_ARRAY_TASK_ID}
+echo "$N"
+
+ra=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f1`
+rb=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f2`
+rc=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f3`
+rd=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f4`
+re=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f5`
+rf=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f6`
+rg=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f7`
+rh=`head -n ${N} parameters8.txt | tail -n 1 | cut -d' ' -f8`
+
+OUT="/storage/homefs/ahauser/projects/${PROJECT}/outfiles/mod1-$ra$rb$rc$rd$re$rf.Rout"
+echo "$OUT"
+
+# Display
+echo "Job array item $N: ra=$ra, rb=$rb, rc=$rc, rd=$rd, re=$re, rf=$rf, rg=$rg, rh=$rh,"
+echo "---------------------------------"
+echo "8 parameters values assigned by array"
+
+# Run
+R CMD BATCH --no-save --no-restore "--args $ra $rb $rc $rd $re $rf $rg $rh" run_mod1_ubelix.R $OUT
+
+# 3 - copy Rout file
+#cp run_mod1_ubelix.Rout $OUT
+#rm run_mod1_ubelix.Rout
+
+echo "Job is done."
