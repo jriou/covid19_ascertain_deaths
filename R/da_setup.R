@@ -13,10 +13,17 @@ library(readxl)
 library(flextable)
 library(ISOweek)
 library(data.table)
-
-# manage encoding ----
-# Sys.setlocale("LC_CTYPE","french")
-# Sys.setlocale("LC_TIME", "English")
+library(jsonlite)
+library(ncdf4)
+library(maptools)
+library(lctools)
+library(raster)
+library(spdep)
+library(FNN)
+library(stringr)
+library(INLA)
+library(patchwork)
+library(zoo)
 
 # set paths ----
 path_script = "R/"

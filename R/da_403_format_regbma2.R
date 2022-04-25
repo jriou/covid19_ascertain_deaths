@@ -10,7 +10,8 @@ da_403_format_regbma2 <- function(x) {
   s =
     r %>% 
     tibble::as_tibble() %>%
-    dplyr::mutate(rowname=rownames(r)) %>% 
+    dplyr::mutate(rowname=rownames(r)) %>%
+    dplyr::filter(!is.na(rowname),rowname!="sd.over:exp") %>% 
     tidyr::separate(rowname,":",into=c("beta","group")) %>% 
     tidyr::separate(beta,"\\[",into=c("par","num")) %>% 
     dplyr::mutate(group=gsub("age_group","agegroup",group)) %>% 

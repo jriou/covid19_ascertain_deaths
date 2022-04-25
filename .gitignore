@@ -1,5 +1,6 @@
 # Data
 /savepoint/*
+/sensitive/*
 /samples/*
 
 # History files

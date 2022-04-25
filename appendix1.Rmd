@@ -1,0 +1,87 @@
+---
+title: "Laboratory-confirmed COVID-19 deaths compared to excess mortality in Switzerland, February 2020 to January 2022"
+subtitle: Julien Riou (1,2,*), Anthony Hauser (1,2), Garyfallos Konstantinoudis (3) <br> <p style="line-height:.7"> <font size="2">(1) Institute of Social and Preventive Medicine, University of Bern, Switzerland. (2) Federal Office of Public Health, Switzerland. (3) MRC Centre for Environment and Health, Department of Epidemiology and Biostatistics, School of Public Health, Imperial College London, London, UK. *julien.riou@bag.admin.ch </font> </p>
+date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
+output: 
+  html_document:
+    code_folding: hide
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+end_date = as.Date("2022-01-30")
+source("R/da_setup.R")
+load("savepoint/summaries.Rdata")
+```
+
+
+# Summary table
+
+
+```{r, fig.width=6}
+t1a = summ_phase_base %>% 
+  dplyr::transmute(phase=as.character(phase),
+                   labo_deaths,
+                   excess=qsum(excess_med,excess_lob,excess_upb)) %>% 
+  dplyr::bind_rows(
+    summ_all_base %>% 
+      dplyr::transmute(phase="Total",
+                       labo_deaths,
+                       excess=qsum(excess_med,excess_lob,excess_upb)))
+
+dplyr::right_join(date_phases,t1a,by = "phase") %>% 
+  flextable() %>% 
+  set_table_properties(layout="autofit") %>% 
+  fit_to_width(max_width=8) %>% 
+  set_header_labels(phase="Phase",
+                    start_date="Start",
+                    end_date="End",
+                    labo_deaths="Laboratory-confirmed deaths",
+                    excess="Excess deaths (95% CrI)",
+                    excess_temp="Excess deaths, accounting for temperature (95% CrI)")
+
+
+
+```
+
+
+# Visual comparison
+
+The following figures allow to visually compare excess mortality by week (the 95% credible interval is shown by the green area) with the number of laboratory-confirmed deaths (in red). We show the figure first for the entire Switzerland, then by canton and by age group.
+
+## Overall
+
+```{r, fig.width=6, fig.height=4}
+summ_week_base %>% 
+  da_301_summary_plot()
+```
+
+
+## By canton
+
+```{r, fig.width=6, fig.height=4}
+for(ca in unique(summ_week_canton_base$canton)) {
+  g = summ_week_canton_base %>% 
+    dplyr::filter(canton==ca) %>% 
+    da_301_summary_plot() +
+    labs(title=paste0("Canton ",ca))
+  print(g)
+}
+```
+
+
+
+## By age group
+
+```{r, fig.width=6, fig.height=4}
+for(ag in unique(summ_week_age_base$age_group)) {
+  g = summ_week_age_base %>% 
+    filter(age_group==ag) %>% 
+    da_301_summary_plot() +
+    labs(title=paste0("Age group ",ag))
+  print(g)
+}
+```
+

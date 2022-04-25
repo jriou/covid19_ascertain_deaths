@@ -1,27 +1,11 @@
+#:::::::::::::::::::::::::::::
+# Project: death_ascertainment
+# description: INLA prediction model
+#:::::::::::::::::::::::::::::
 
-
-
-# Created 12.12.2022
-
-
-# INLA prediction model
-
-
-#######################################################################################
-
-remove(list=ls())
-library(tidyverse)
-library(INLA)
-library(sf)
-library(dplyr)
-library(spdep)
 INLA:::inla.dynload.workaround()
 
-#inla.setOption(pardiso.license = "~/.")
-
-
 # set as working directory the folder where all the R files are.
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/") 
 
 # select if you want the predictions to include
 add.temperature <- TRUE
@@ -148,16 +132,6 @@ funpar <- function(X){
   
 }
 
-# t_0 <- Sys.time()
-# list.loop <- list()
-# for(k in 1:200){
-#   print(k)
-#   list.loop[[k]] <- funpar(k)
-# }
-# t_1 <- Sys.time()
-# t_1 - t_0
-
-
 
 
 t_0 <- Sys.time()
@@ -218,14 +192,4 @@ colnames(finpop) <- paste0("pop_", gsub(".*_", "", colnames(finsamples)))
 
 finsamples <- cbind(cols, finsamples, finpop)
 saveRDS(finsamples, file = "savepoint/pois.samples.temp.bma")
-
-
-
-#######################################################################################
-#######################################################################################
-#######################################################################################
-#######################################################################################
-#######################################################################################
-#######################################################################################
-
 
