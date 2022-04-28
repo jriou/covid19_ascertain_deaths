@@ -27,6 +27,7 @@ library(zoo)
 library(nimble)
 library(doParallel) 
 library(fastDummies) 
+library(cowplot)
 
 # set paths ----
 path_script = "R/"

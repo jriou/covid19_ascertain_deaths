@@ -1,26 +1,16 @@
+#:::::::::::::::::::::::::::::
+# Project: death_ascertainment
+# description: Posterior predictive checks
+#:::::::::::::::::::::::::::::
 
 
 
-# Created 19.04.2022
-
-# Posterior predictive checks
-
-#############################################################
-
-
-library(dplyr)
-library(fastDummies)
-library(tidyr)
-library(ggplot2)
-library(cowplot)
-
-
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/savepoint/")
+setwd("savepoint_2022-04-19/")
 res <- lapply(c("combined_samples_trun_temperature_corrected", "combined_samples_trun_temperature_corrected_OV", "combined_samples_trun_temperature_corrected_OV_0.01", "combined_samples_trun_temperature_corrected_OV_0.001"), readRDS)
 
 
 # Prepare data for counts
-samp = readRDS("merged_samples4.rds")
+samp = readRDS("merged_samples.rds")
 
 # select to use the predictions including the temperature
 temperature <- TRUE

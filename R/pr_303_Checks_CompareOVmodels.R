@@ -1,20 +1,11 @@
-
-# Created 19.04.2022
-
-# Posteriors of OV
-
-#############################################################
+#:::::::::::::::::::::::::::::
+# Project: death_ascertainment
+# description: Compare OV models
+#:::::::::::::::::::::::::::::
 
 
-library(dplyr)
-library(fastDummies)
-library(tidyr)
-library(ggplot2)
-library(cowplot)
 
-
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/savepoint/")
-
+setwd("savepoint_2022-04-19/")
 
 nam <- c("age_group", "canton_name", "phase", "Total")
 ext <- c("corrected_OV", "corrected_OV_0.01", "corrected_OV_0.001")

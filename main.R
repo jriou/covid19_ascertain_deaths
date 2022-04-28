@@ -121,6 +121,11 @@ if(controls$compute_glm) {
   
   # Combine results
   source("R/pr_202_Model_CombineSamples.R")
+  
+  # Run various checks
+  source("R/pr_301_Checks_Overdispersion.R")
+  source("R/pr_302_Checks_PosteriorPredictive.R")
+  source("R/pr_303_Checks_CompareOVmodels.R")
 }
 
 # Block 8: check outputs ----

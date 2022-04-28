@@ -1,20 +1,11 @@
+#:::::::::::::::::::::::::::::
+# Project: death_ascertainment
+# description: Compare Poissons with overdispersion
+#:::::::::::::::::::::::::::::
 
 
-# Created 19.04.2022
 
-# Compare Poissons with overdispersion
-
-#############################################################
-
-
-library(dplyr)
-library(fastDummies)
-library(tidyr)
-library(ggplot2)
-library(cowplot)
-
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/savepoint/")
-
+setwd("savepoint_2022-04-19/")
 
 res <- lapply(c("combined_samples_trun_temperature_corrected", "combined_samples_trun_temperature_corrected_OV", "combined_samples_trun_temperature_corrected_OV_0.01", "combined_samples_trun_temperature_corrected_OV_0.001"), readRDS)
 
@@ -73,7 +64,7 @@ data.long.age %>%
 # canton
 rm <- which(is.na(colnames(listloop[[4]]$canton_name)))
 canton.res <- rbind(listloop[[1]]$canton_name, listloop[[2]]$canton_name[, -rm], listloop[[3]]$canton_name[, -rm], listloop[[4]]$canton_name[, -rm])
-data_long <- gather(canton.res, beta, values, `beta[1]:canton_name_Aargau`:`beta[52]:canton_name_Zürich`, factor_key=TRUE)
+data_long <- gather(canton.res, beta, values, `beta[1]:canton_name_Aargau`:`beta[52]:canton_name_Z?rich`, factor_key=TRUE)
 
 data_long %>% select(model, beta, values) %>% group_by(model, beta) %>% 
   summarize(med = median(values), 
