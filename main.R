@@ -114,10 +114,10 @@ if(controls$source) {
 if(controls$compute_glm) {
   # Regression and Bayesian model averaging procedure
   source("R/pr_201_Model_BetaModel.R")
-  pr_201_Model_BetaModel(by=NULL)
-  pr_201_Model_BetaModel(by="age_group")
-  pr_201_Model_BetaModel(by="canton_name")
-  pr_201_Model_BetaModel(by="phase")
+  pr_201_Model_BetaModel(by=NULL,overdispersion=TRUE,correction_expected = TRUE)
+  pr_201_Model_BetaModel(by="age_group",overdispersion=TRUE,correction_expected = TRUE)
+  pr_201_Model_BetaModel(by="canton_name",overdispersion=TRUE,correction_expected = TRUE)
+  pr_201_Model_BetaModel(by="phase",overdispersion=TRUE,correction_expected = TRUE)
   
   # Combine results
   source("R/pr_202_Model_CombineSamples.R")

@@ -3,18 +3,15 @@
 # description: NIMBLE BMA + SMOOTHING
 #:::::::::::::::::::::::::::::
 
-pr_201_Model_BetaModel = function(by) {
+pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
   # load data
   merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
   # select to use the predictions including the temperature
   temperature <- TRUE
   # select whether to exclude phase 7 or not (TRUE includes it)
   phase7 <- FALSE
-  # correct for population changes after a wave
-  correction_expected = TRUE
   select.rate.param <- 0.001 # 0.1 is set for the main one
-  # select overdispersion
-  overdispersion <- TRUE
+  
   
   # by <- NULL # this corresponds to total
   # by <- "age_group"
