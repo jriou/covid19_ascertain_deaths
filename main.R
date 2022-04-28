@@ -8,7 +8,6 @@ controls = list(source=FALSE,
                 update_bag_data=FALSE,
                 merge_samples_bag_data=FALSE,
                 savepoint=paste0("savepoint_",end_date))
-dir.create(file.path(".", controls$savepoint), showWarnings = FALSE)
 
 source("R/da_setup.R")
 

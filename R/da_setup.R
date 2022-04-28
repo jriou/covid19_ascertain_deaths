@@ -33,6 +33,9 @@ path_script = "R/"
 path_mm_root = "//adb.intra.admin.ch/BAG$/Teams/Krisen/2019_nCov/03 AG Lage/07_R/_datadump/"
 path_dashboard = "//adb.intra.admin.ch/BAG$/Teams/Krisen/2019_nCov/03 AG Lage/07_R/_datadump/Dashboard/"
 
+# create savepoint repertory if not existing ----
+dir.create(file.path(".", controls$savepoint), showWarnings = FALSE)
+
 # source functions ----
 fili = dir(path_script,pattern="da_[0123456789]")
 fili = fili[!grepl("407",fili)]
