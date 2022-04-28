@@ -2,13 +2,16 @@
 # Julien Riou, Anthony Hauser, Garyfallos Konstantinoudis
 # Started 2022-02-17
 
+# controls
 end_date = as.Date("2022-04-19")
 controls = list(source=FALSE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
                 merge_samples_bag_data=FALSE,
+                compute_glm=FALSE,
                 savepoint=paste0("savepoint_",end_date))
 
+# set-up
 source("R/da_setup.R")
 
 if(controls$source) { # ignored upon sourcing
@@ -95,7 +98,8 @@ summ_week_canton_temp_corr %>%
   da_302_summary_plot_corr()
 
 # Block 6: links between labo_deaths and observed deaths (ignoring uncertainty for now)
-if(FALSE) {
+
+if(controls$source) {
   summ_week_temp %>% 
     ggplot() +
     geom_point(aes(x=labo_deaths,y=deaths,colour=week)) 
@@ -107,7 +111,7 @@ if(FALSE) {
 
 # Block 7: GLM and Bayesian model averaging ----
 
-if(FALSE) {
+if(controls$compute_glm) {
   # Regression and Bayesian model averaging procedure
   source("R/pr_201_Model_BetaModel.R")
   pr_201_Model_BetaModel(by=NULL)
