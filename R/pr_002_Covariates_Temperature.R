@@ -138,5 +138,5 @@ t_1 - t_0 # approx 1.4h
 
 # gather temperature
 loop.df <- do.call(rbind, temperature.loop.list)
-saveRDS(loop.df, file = "data/TemperatureWeeklyCH")
+saveRDS(loop.df, file = file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
 

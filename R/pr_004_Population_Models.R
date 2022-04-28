@@ -50,7 +50,7 @@ pred$population <- NA
 
 pop <- rbind(pop, pred)
 
-saveRDS(pop, file = "data/pop2010_2020")
+saveRDS(pop, file = file.path(controls$savepoint,"pop2010_2020.rds"))
 
 
 # Now fit the model
@@ -205,7 +205,7 @@ for(i in 1:length(ints)){
   t_1 <- Sys.time()
   print(t_1 - t_0)
   
-  saveRDS(list2store, file = paste0("savepoint/popcv_", int))
+  saveRDS(list2store, file = file.path(controls$savepoint,paste0("popcv_",int)))
   
   # and leave the past 3 years cross validation
   
@@ -238,8 +238,8 @@ for(i in 1:length(ints)){
    true_values =  datCV_reset$population[testIndexes]
   )
   
-  saveRDS(list.CV.results, file = paste0("savepoint/popcv3y_", int))
-
+  saveRDS(list.CV.results, file = file.path(controls$savepoint,paste0("popcv3y_",int)))
+  
 }
 
 # [1] 1

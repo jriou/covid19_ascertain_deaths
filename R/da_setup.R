@@ -24,6 +24,9 @@ library(stringr)
 library(INLA)
 library(patchwork)
 library(zoo)
+library(nimble)
+library(doParallel) 
+library(fastDummies) 
 
 # set paths ----
 path_script = "R/"
@@ -39,7 +42,7 @@ lapply(X = fili, FUN = function(x) {source(paste0(path_script, x), echo=FALSE)} 
 link = readRDS("data/link_caterpilar")
 
 # commons ----
-cantons_ids = read_csv2("data/correspondance.csv")
+cantons_ids = read.csv("data/correspondance.csv", fileEncoding = "ISO-8859-3")
 breaks_age_classes = c(0,40,60,70,80,150)
 age_classes = c("0-39","40-59","60-69","70-79","80+")
 phases = readRDS("data/phases.rds") 

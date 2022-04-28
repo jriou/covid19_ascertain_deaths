@@ -3,41 +3,48 @@
 # Started 2022-02-17
 
 end_date = as.Date("2022-04-19")
+controls = list(source=FALSE,
+                compute_sample=FALSE,
+                update_bag_data=FALSE,
+                merge_samples_bag_data=FALSE,
+                savepoint=paste0("savepoint_",end_date))
+dir.create(file.path(".", controls$savepoint), showWarnings = FALSE)
+
 source("R/da_setup.R")
 
-if(FALSE) { # ignored upon sourcing
+if(controls$source) { # ignored upon sourcing
   
   # Block 0: compute excess mortality (from https://www.nature.com/articles/s41467-022-28157-3)
-  if(FALSE) {
-    da_001_compute_samples()
+  if(controls$compute_sample) {
+    da_000_compute_samples()
   }
   
-  # Block 1: samples of expected deaths from historical trends ----
-  samp = da_001_load_samples()
-  samp = da_101_clean_samples(samp)
-  samp = da_104_get_excess(samp)
-  
-  # Block 2: laboratory-confirmed deaths from the BAG ----
-  if(FALSE) {
+  # Block 1: laboratory-confirmed deaths from the BAG ----
+  if(controls$update_bag_data) {
     labd = da_002_load_lab_deaths()
     labd = da_102_clean_lab_deaths(labd)
-    writeRDS(labd,file="savepoint/labd_2022-04-19.rds")
-  }
-  labd = readRDS("savepoint/labd_2022-04-19.rds")
-  
-  # Block 3: merge
-  merg = da_103_merge(samp,labd)
-  
-  # Save point
-  saveRDS(merg,"savepoint/merged_samples4.rds")
-  merg = readRDS("savepoint/merged_samples4.rds")
-  
-  # Optional: reduce samples during development
-  if(FALSE) {
-    merg = dplyr::filter(merg,id_loop<=100)
+    saveRDS(labd,file=file.path(controls$savepoint,"labd.rds"))
+  } else {
+    labd = readRDS(file.path(controls$savepoint,"labd.rds"))
   }
   
-  # Block 2: summarize ----
+  # Block 2: samples of expected deaths from historical trends ----
+  if(controls$merge_samples_bag_data) {
+    samp = da_001_load_samples()
+    samp = da_101_clean_samples(samp)
+    samp = da_104_get_excess(samp)
+  }
+  
+  # Block 3: merge ----
+  if(controls$merge_samples_bag_data) {
+    merg = da_103_merge(samp,labd)
+    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples.rds"))
+  }
+  merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+  
+  
+  # Block 4: summarize ----
+  
   summ_all_temp = da_201_summarise_by(merg,by=NULL)
   summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
   
@@ -57,14 +64,14 @@ if(FALSE) { # ignored upon sourcing
   summ_week_age_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","age_group"))
   
   # Save point
-  save(list=ls(pattern = "summ_"),file="savepoint/summ4.Rdata")
+  save(list=ls(pattern = "summ_"),file=file.path(controls$savepoint,"summ.Rdata"))
 }
 
 # Start from save point upon sourcing
-load("savepoint/summ4.Rdata")
+load(file.path(controls$savepoint,"summ.Rdata"))
 
 
-# Block 3: descriptive figures ----
+# Block 5: descriptive figures ----
 
 # Laboratory-confirmed deaths and excess death over time
 summ_week_temp %>% 
@@ -72,7 +79,7 @@ summ_week_temp %>%
 summ_week_temp_corr %>% 
   da_302_summary_plot_corr()
 
-
+# Select age group
 summ_week_age_temp %>% 
   dplyr::filter(age_group=="80+") %>% 
   da_301_summary_plot()
@@ -80,12 +87,15 @@ summ_week_age_temp_corr %>%
   dplyr::filter(age_group=="80+") %>% 
   da_302_summary_plot_corr()
 
-
+# Select canton
 summ_week_canton_temp_corr %>% 
   dplyr::filter(canton=="AG") %>% 
   da_302_summary_plot_corr()
+summ_week_canton_temp_corr %>% 
+  dplyr::filter(canton=="BE") %>% 
+  da_302_summary_plot_corr()
 
-# GLM development (ignoring uncertainty for now)
+# Block 6: links between labo_deaths and observed deaths (ignoring uncertainty for now)
 if(FALSE) {
   summ_week_temp %>% 
     ggplot() +
@@ -96,26 +106,27 @@ if(FALSE) {
 }
 
 
-# Block 4: GLM and Bayesian model averaging ----
-
-# Regression and Bayesian model averaging procedure
-if(FALSE) {
-  source("R/NIMBLE_BMA.R") 
-  source("R/Combine_Samples.R")
-}
-
-# Block 5: check outputs ----
+# Block 7: GLM and Bayesian model averaging ----
 
 if(FALSE) {
+  # Regression and Bayesian model averaging procedure
+  source("R/pr_201_Model_BetaModel.R")
+  pr_201_Model_BetaModel(by=NULL)
+  pr_201_Model_BetaModel(by="age_group")
+  pr_201_Model_BetaModel(by="canton_name")
+  pr_201_Model_BetaModel(by="phase")
   
-  # Load outputs from the multilevel regression and Bayesian model averaging procedure
-  regbma = readRDS("savepoint/combined_samples_trun_temperature_corrected_OV")
-  
-  # Format outputs
-  summ_regbma  = da_403_format_regbma2(regbma)
-  
-  # Plot
-  da_404_plot_regbma(summ_regbma)
-  
-  regbma2$phase
+  # Combine results
+  source("R/pr_202_Model_CombineSamples.R")
 }
+
+# Block 8: check outputs ----
+
+# Load outputs from the multilevel regression and Bayesian model averaging procedure
+regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV"))
+
+# Format outputs
+summ_regbma  = da_403_format_regbma2(regbma)
+
+# Plot
+da_404_plot_regbma(summ_regbma)

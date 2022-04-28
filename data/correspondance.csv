@@ -1,27 +1,27 @@
-canton_id;canton
-CH011;VD
-CH012;VS
-CH013;GE
-CH021;BE
-CH022;FR
-CH023;SO
-CH024;NE
-CH025;JU
-CH031;BS
-CH032;BL
-CH033;AR
-CH040;ZH
-CH051;GL
-CH052;SH
-CH053;AR
-CH054;AI
-CH055;SG
-CH056;GR
-CH057;TG
-CH061;LU
-CH062;UR
-CH063;SZ
-CH064;OW
-CH065;NW
-CH066;ZG
-CH070;TI
+canton_id,canton,canton_name
+CH011,VD,Vaud
+CH012,VS,Valais / Wallis
+CH013,GE,Genève
+CH021,BE,Bern / Berne
+CH022,FR,Fribourg / Freiburg
+CH023,SO,Solothurn
+CH024,NE,Neuchâtel
+CH025,JU,Jura
+CH031,BS,Basel-Stadt
+CH032,BL,Basel-Landschaft
+CH033,AG,Aargau
+CH040,ZH,Zürich
+CH051,GL,Glarus
+CH052,SH,Schaffhausen
+CH053,AR,Appenzell Ausserrhoden
+CH054,AI,Appenzell Innerrhoden
+CH055,SG,St. Gallen
+CH056,GR,Graubünden / Grigioni / Grischun
+CH057,TG,Thurgau
+CH061,LU,Luzern
+CH062,UR,Uri
+CH063,SZ,Schwyz
+CH064,OW,Obwalden
+CH065,NW,Nidwalden
+CH066,ZG,Zug
+CH070,TI,Ticino

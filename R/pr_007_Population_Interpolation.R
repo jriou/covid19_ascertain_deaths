@@ -4,7 +4,7 @@
 #:::::::::::::::::::::::::::::
 
 
-pop <- readRDS("data/pop2010_2020")
+pop <- readRDS(file.path(controls$savepoint,"pop2010_2020.rds"))
 pop %>% filter(year >= 2014, year < 2020) -> pop
 pop$year <- pop$year + 1
 
@@ -54,7 +54,7 @@ pop_weekly <- left_join(pop_weekly, EUROSTAT_ISO[,c("EURO_LABEL", "year", "day2p
 
 # Add the predictions
 
-pred2021_23 <- readRDS("savepoint/pois.samples.population.OV.INT")
+pred2021_23 <- readRDS(file.path(controls$savepoint,"pois.samples.population.OV.INT.rds"))
 
 
 # since with CH is the 31st of Dec of each year, I will make this 1st Jan of the next year
@@ -136,5 +136,5 @@ for(i in 1:200){
 }
 
 
-saveRDS(listpop, file = "savepoint/popfinCH_list")
+saveRDS(listpop, file = file.path(controls$savepoint,"popfinCH_list.rds"))
 

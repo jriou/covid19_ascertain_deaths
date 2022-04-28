@@ -39,7 +39,7 @@ gatBankHol <- function(X){
 
 lapply(pathURL, gatBankHol) -> holCH
 holCH <- do.call(rbind, holCH)
-saveRDS(holCH, file = "data/holCH")
+saveRDS(holCH, file = file.path(controls$savepoint,"holCH.rds"))
 
 
 

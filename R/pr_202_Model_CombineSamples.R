@@ -1,20 +1,12 @@
+#:::::::::::::::::::::::::::::
+# Project: death_ascertainment
+# description: Extract samples
+#:::::::::::::::::::::::::::::
 
-
-# Created 25.02.2022
-
-# Extract samples
-
-#############################################################
-
-
-library(dplyr)
-library(fastDummies)
-
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 nam <- c("age_group", "canton_name", "phase", "Total")
 ext <- "_corrected" # _corrected", "_corrected_OV", "_corrected_OV_0.01", "_corrected_OV_0.001"
-sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
+sampls <- lapply(paste0(controls$savepoint,"SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
 
 set.seed(11)
 # retrieve 1000 of the combined posteriors and remove the u-s
@@ -31,7 +23,7 @@ names(combined_samples) <- nam
 
 # need to go back and retrieve the names of the coefficients, thus i need the results
 # of the INLA modelling.
-samp = readRDS("savepoint/merged_samples4.rds")
+merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
 
 
 for(i in 1:length(nam)){
@@ -70,15 +62,12 @@ for(i in 1:length(nam)){
   }
 }
 
-saveRDS(combined_samples, file = paste0("savepoint/combined_samples_trun_temperature", ext))
+saveRDS(combined_samples, file = paste0(controls$savepoint,"combined_samples_trun_temperature", ext))
 
 # get the summary statistics
 lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025, 0.975)))
 
 
-#############################################################
-#############################################################
-#############################################################
 
 
 

@@ -6,6 +6,13 @@ output: html_document
 ```{r setup, include=FALSE}
 
 
+end_date = as.Date("2022-04-19")
+controls = list(source=FALSE,
+                compute_sample=FALSE,
+                update_bag_data=FALSE,
+                merge_samples_bag_data=FALSE,
+                savepoint=paste0("../savepoint_",end_date))
+
 library(INLA)
 library(dplyr)
 library(tidyr)
@@ -39,12 +46,12 @@ postpredchecks <- function(Y){
 }
 
 
-nointeractions <- readRDS("savepoint/popcv_nointeractions")
-nointeractionsov <- readRDS("savepoint/popcv_nointeractionsov")
-interactionsov <- readRDS("savepoint/popcv_interactionsov")
-randomslope <- readRDS("savepoint/popcv_randomslope")
-randomslopeov <- readRDS("savepoint/popcv_randomslopeov")
-randomslopeintov <- readRDS("savepoint/popcv_randomslopeintov")
+nointeractions <- readRDS(file.path(controls$savepoint,"popcv_nointeractions"))
+nointeractionsov <- readRDS(file.path(controls$savepoint,"popcv_nointeractionsov"))
+interactionsov <- readRDS(file.path(controls$savepoint,"popcv_interactionsov"))
+randomslope <- readRDS(file.path(controls$savepoint,"popcv_randomslope"))
+randomslopeov <- readRDS(file.path(controls$savepoint,"popcv_randomslopeov"))
+randomslopeintov <- readRDS(file.path(controls$savepoint,"popcv_randomslopeintov"))
 
 res_checks_noint <- lapply(nointeractions, postpredchecks)
 res_checks_nointov <- lapply(nointeractionsov, postpredchecks)
@@ -227,14 +234,12 @@ p1|p2|p3
 
 ```{r cars}
 
-setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
-
-nointeractions <- readRDS("savepoint/popcv3y_nointeractions")
-nointeractionsov <- readRDS("savepoint/popcv3y_nointeractionsov")
-interactionsov <- readRDS("savepoint/popcv3y_interactionsov")
-randomslope <- readRDS("savepoint/popcv3y_randomslope")
-randomslopeov <- readRDS("savepoint/popcv3y_randomslopeov")
-randomslopeintov <- readRDS("savepoint/popcv3y_randomslopeintov")
+nointeractions <- readRDS(file.path(controls$savepoint,"popcv3y_nointeractions"))
+nointeractionsov <- readRDS(file.path(controls$savepoint,"popcv3y_nointeractionsov"))
+interactionsov <- readRDS(file.path(controls$savepoint,"popcv3y_interactionsov"))
+randomslope <- readRDS(file.path(controls$savepoint,"popcv3y_randomslope"))
+randomslopeov <- readRDS(file.path(controls$savepoint,"popcv3y_randomslopeov"))
+randomslopeintov <- readRDS(file.path(controls$savepoint,"popcv3y_randomslopeintov"))
 
 res_checks_noint <- postpredchecks(nointeractions)
 res_checks_nointov <- postpredchecks(nointeractionsov)

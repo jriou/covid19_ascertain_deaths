@@ -4,7 +4,7 @@
 #:::::::::::::::::::::::::::::
 
 
-pop <- readRDS("data/pop2010_2020")
+pop <- readRDS(file.path(controls$savepoint,"pop2010_2020.rds"))
 
 # Now fit the model
 
@@ -79,4 +79,4 @@ datsamples <- datsamples[is.na(datsamples$population),]
 datsamples$population <- NULL
 
 
-saveRDS(datsamples, file = "savepoint/pois.samples.population.OV.INT")
+saveRDS(datsamples, file = file.path(controls$savepoint,"pois.samples.population.OV.INT.rds"))

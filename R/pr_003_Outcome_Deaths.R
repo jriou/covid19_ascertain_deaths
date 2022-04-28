@@ -70,14 +70,14 @@ findata %>% filter(year >= 2015) -> findata
 ## Bring everything together
 
 
-hol <- readRDS("data/holCH")
-tmp <- readRDS("data/TemperatureWeeklyCH")
-shp <- read_sf("data/shp.shp")
+hol <- readRDS(file.path(controls$savepoint,"holCH.rds"))
+tmp <- readRDS(file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
+shp <- sf::read_sf("data/shp.shp")
 
 
-nam <- c("Graub?nden", "Bern", "Valais", "Vaud", "Ticino", "St. Gallen", "Z?rich", "Fribourg", "Luzern", 
-  "Aargau", "Uri", "Thurgau", "Schwyz", "Jura", "Neuch?tel", "Solothurn", "Glarus", "Basel-Landschaft", 
-  "Obwalden", "Nidwalden", "Gen?ve", "Schaffhausen", "Appenzell Ausserrhoden", "Zug", "Appenzell Innerrhoden", 
+nam <- c("Graubünden", "Bern", "Valais", "Vaud", "Ticino", "St. Gallen", "Zürich", "Fribourg", "Luzern", 
+  "Aargau", "Uri", "Thurgau", "Schwyz", "Jura", "Neuchâtel", "Solothurn", "Glarus", "Basel-Landschaft", 
+  "Obwalden", "Nidwalden", "Genève", "Schaffhausen", "Appenzell Ausserrhoden", "Zug", "Appenzell Innerrhoden", 
   "Basel-Stadt")
 
 linkCH <- data.frame(
@@ -114,7 +114,10 @@ findata$hol[findata$hol>=1] <- 1
 findata$hol.x <- findata$hol.y <- NULL
 
 # and add the temperature 
-findata <- left_join(findata, tmp, by = c("NAME" = "NAME", "EURO_LABEL" = "EURO_LABEL"))
+findata <- left_join(findata, tmp, by = c("NAME" = "NAME", "EURO_LABEL" = "EURO_LABEL"))  
 
-saveRDS(findata, file = "savepoint/findata")
+# add canton names
+findata <-  left_join(findata,cantons_ids,by=c("CN"="canton"))
+
+saveRDS(findata, file = file.path(controls$savepoint,"findata.rds"))
 

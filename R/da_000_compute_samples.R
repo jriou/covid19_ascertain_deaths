@@ -4,7 +4,7 @@
 #:::::::::::::::::::::::::::::
 
 
-da_001_compute_samples <- function() {
+da_000_compute_samples <- function() {
   
   # 1 - download and format data ----
   
@@ -20,7 +20,7 @@ da_001_compute_samples <- function() {
   
   ## model comparison with cross validation
   source("R/pr_004_Population_Models.R")
-  rmarkdown::render("R/pr_005_Population_CrossValidation.Rmd")
+  rmarkdown::render("R/pr_005_Population_CrossValidation.Rmd", output_dir = controls$savepoint)
   
   ## apply selected model
   source("R/pr_006_Population_Predictions.R")

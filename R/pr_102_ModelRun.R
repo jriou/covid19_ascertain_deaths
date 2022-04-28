@@ -3,18 +3,17 @@
 # description: INLA prediction model
 #:::::::::::::::::::::::::::::
 
-INLA:::inla.dynload.workaround()
+# INLA:::inla.binary.install()
 
 # set as working directory the folder where all the R files are.
 
 # select if you want the predictions to include
 add.temperature <- TRUE
 
-
-finaldb=readRDS("data/fin")
-shp = read_sf("data/shp.shp")
-W.nb <- poly2nb(shp)
-nb2INLA("W.adj", W.nb) 
+finaldb=readRDS(file.path(controls$savepoint,"findata.rds"))
+shp = sf::read_sf("data/shp.shp")
+W.nb <- spdep::poly2nb(shp)
+spdep::nb2INLA("data/W.adj", W.nb) 
 
 # Select data for the period 2015-2019 
 data = finaldb
@@ -22,7 +21,7 @@ data = finaldb
 # Create indexes
 data$id.space = as.numeric(as.factor(data$ID_space))
 data$id.time <- as.numeric(substr(data$EURO_LABEL, start = 7, stop = 8))
-data$id.tmp <- inla.group(data$mean.temp, n = 100, method = "cut", idx.only = TRUE)
+data$id.tmp <- inla.group(data$temperature, n = 100, method = "cut", idx.only = TRUE)
 data$id.year <- as.numeric(data$year) - 2014
 
 # create groups for age
@@ -41,7 +40,7 @@ if(add.temperature){
     f(id.year, model='iid', hyper=hyper.iid, constr = TRUE) + 
     f(id.age, model='iid', hyper=hyper.iid, constr = TRUE) + 
     f(id.time, model='rw1', hyper=hyper.iid, constr = TRUE, scale.model = TRUE, cyclic = TRUE) +
-    f(id.space, model='bym2', graph="W.adj", scale.model = TRUE, constr = TRUE, hyper = hyper.bym)
+    f(id.space, model='bym2', graph="data/W.adj", scale.model = TRUE, constr = TRUE, hyper = hyper.bym)
   
   datCV_firslop <- data
   datCV_firslop <- datCV_firslop[datCV_firslop$year < 2022,] 
@@ -56,7 +55,7 @@ if(add.temperature){
     f(id.year, model='iid', hyper=hyper.iid, constr = TRUE) + 
     f(id.age, model='iid', hyper=hyper.iid, constr = TRUE) + 
     f(id.time, model='rw1', hyper=hyper.iid, constr = TRUE, scale.model = TRUE, cyclic = TRUE) +
-    f(id.space, model='bym2', graph="W.adj", scale.model = TRUE, constr = TRUE, hyper = hyper.bym)
+    f(id.space, model='bym2', graph="data/W.adj", scale.model = TRUE, constr = TRUE, hyper = hyper.bym)
   
   datCV_firslop <- data
   data_true_deaths <- datCV_firslop
@@ -78,7 +77,7 @@ control.family=inla.set.control.family.default()
 
 
 # read population samples
-pop.list <- readRDS("savepoint/popfinCH_list")
+pop.list <- readRDS(file.path(controls$savepoint,"popfinCH_list.rds"))
 
 
 
@@ -92,7 +91,7 @@ funpar <- function(X){
                                  by = c("age.group" = "age", 
                                         "sex" = "sex", 
                                         "EURO_LABEL" = "EURO_LABEL", 
-                                        "NAME.POP" = "NUTS318CD"))
+                                        "canton_name" = "NUTS318CD"))
   
   colnames(datCV_firslop.tmp)[colnames(datCV_firslop.tmp) %in% "population.y"] <- "population"
   
@@ -103,11 +102,11 @@ funpar <- function(X){
                 control.family=control.family,
                 control.compute=list(config = TRUE), 
                 control.mode=list(theta=thet, restart=T),
-                num.threads = 10, 
+                num.threads = 8, 
                 control.predictor = list(link = 1))
 
   
-  # now I need to sample from a Poisson
+  # now sample from a Poisson
   post.samples <- inla.posterior.sample(n = 1000, result = in.mod)
   predlist <- do.call(cbind,
                       lapply(post.samples,
@@ -119,7 +118,9 @@ funpar <- function(X){
   
   pois.samples$EURO_LABEL <- datCV_firslop.tmp$EURO_LABEL
   pois.samples$ID_space <- datCV_firslop.tmp$ID_space
-  pois.samples$NAME.POP <- datCV_firslop.tmp$NAME.POP
+  pois.samples$NAME <- datCV_firslop.tmp$NAME
+  pois.samples$canton_name <- datCV_firslop.tmp$canton_name
+  pois.samples$canton_id <- datCV_firslop.tmp$canton_id
   pois.samples$deaths <- data_true_deaths$deaths 
   pois.samples$population <- datCV_firslop.tmp$population 
   pois.samples$year <- datCV_firslop.tmp$year
@@ -162,9 +163,9 @@ t_1 <- Sys.time()
 t_1 - t_0 # 9h
 
 if(add.temperature){
-  saveRDS(outpar, file = "savepoint/pois.samples.withtemperature.uppop")
+  saveRDS(outpar, file = file.path(controls$savepoint,"pois.samples.withtemperature.uppop"))
 }else{
-  saveRDS(outpar, file = "savepoint/pois.samples.2022.uppop")
+  saveRDS(outpar, file = file.path(controls$savepoint,"pois.samples.2022.uppop"))
 }
 
 
@@ -172,10 +173,10 @@ if(add.temperature){
 # memory issues
 
 
-outpar <- readRDS("savepoint/pois.samples.withtemperature.uppop") # 15min
+outpar <- readRDS(file.path(controls$savepoint,"pois.samples.withtemperature.uppop")) # 15min
 
 # keep the relevant rows
-cols <- outpar[[1]][,c("EURO_LABEL", "ID_space", "NAME.POP", "deaths", "year", "age.group", "sex")]
+cols <- outpar[[1]][,c("EURO_LABEL", "ID_space", "canton_name", "deaths", "year", "age.group", "sex")]
 
 do.call(cbind, lapply(outpar, function(X) X[,"population"])) -> outpar.pop
 do.call(cbind, lapply(outpar, function(X) X[,1:1000])) -> outpar.excess
@@ -191,5 +192,5 @@ finpop <- outpar.pop[, as.numeric(gsub(".*_", "", colnames(finsamples)))]
 colnames(finpop) <- paste0("pop_", gsub(".*_", "", colnames(finsamples)))
 
 finsamples <- cbind(cols, finsamples, finpop)
-saveRDS(finsamples, file = "savepoint/pois.samples.temp.bma")
+saveRDS(finsamples, file = file.path(controls$savepoint,"pois.samples.temp.bma.rds"))
 
