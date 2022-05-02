@@ -5,10 +5,10 @@
 
 
 
-temp.names <- list.files("sensitive/")[startsWith(list.files("sensitive/"), "TabsD")]
+temp.names <- list.files("data/meteoswiss/")[startsWith(list.files("data/meteoswiss/"), "TabsD")]
 # we do not need 2014
 temp.names <- temp.names[-1]
-temperature.list <- lapply(paste0("sensitive/", temp.names), nc_open)
+temperature.list <- lapply(paste0("data/meteoswiss/", temp.names), nc_open)
 # the shp
 shp <- read_sf("data/shp.shp")
 
