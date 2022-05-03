@@ -32,7 +32,7 @@ saveRDS(EUROSTAT_ISO, file = "data/EUROSTAT_ISO")
 temperature.loop.list <- list()
 
 t_0 <- Sys.time()
-for(i in 1:length(temp.names)){
+for(i in 8:length(temp.names)){
 
   print(i)
   
@@ -46,6 +46,23 @@ for(i in 1:length(temp.names)){
   hour <- ncvar_get(temperature,"time")
   # hours since 1900-01-01
   hour_tr <- as.POSIXct(hour*3600*24, origin="1900-01-01 00:00")
+  hour_tr <- format(as.POSIXct(hour_tr,format='%Y-%m-%d %H:%M:%S GMT'),format='%Y-%m-%d')
+  
+  # QUICKFIX: adapt code to monthly temperature files in 2022
+  if(grepl("20220101",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-01-01 00:00")
+  } else if(grepl("20220201",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-02-01 00:00")
+  } else if(grepl("20220301",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-03-01 00:00")
+  } else if(grepl("20220401",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-04-01 00:00")
+  } else if(grepl("20220501",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-05-01 00:00")
+  } else if(grepl("20220601",temp.names[i])) {
+    hour_tr <- as.POSIXct(hour*3600*24, origin="2022-06-01 00:00")
+  } 
+  
   hour_tr <- format(as.POSIXct(hour_tr,format='%Y-%m-%d %H:%M:%S GMT'),format='%Y-%m-%d')
   
   
@@ -138,5 +155,20 @@ t_1 - t_0 # approx 1.4h
 
 # gather temperature
 loop.df <- do.call(rbind, temperature.loop.list)
+
+# check
+if(FALSE) {
+  loop.df %>% 
+    ggplot() +
+    geom_point(aes(x=EURO_LABEL,y=temperature,colour=NAME))
+  loop.df %>% 
+    filter(NAME=="Bern",grepl("2022",EURO_LABEL)) %>% 
+    ggplot() +
+    geom_point(aes(x=EURO_LABEL,y=temperature))
+  
+}
+
+
+
 saveRDS(loop.df, file = file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
 

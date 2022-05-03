@@ -4,11 +4,16 @@
 #:::::::::::::::::::::::::::::
 
 # download deaths from: https://www.bfs.admin.ch/bfs/en/home/statistics/population/births-deaths/deaths.assetdetail.22324726.html
-# and store it as ch_deaths_10_22.csv in the data folder
+# and store it as ch_deaths_YEAR.csv in the data folder
 
 # Clean deaths
 
-deaths_10_22 <- read.csv("data/ch_deaths_10_22.csv", sep = ";", header = TRUE)
+deaths_2000_2021 <- read.csv("data/ch_deaths_2000_2021.csv", sep = ";", header = TRUE)
+deaths_2022 <- read.csv("data/ch_deaths_2022.csv", sep = ";", header = TRUE) %>% 
+  dplyr::rename(Obs_status=OBS_STATUS,Obs_value=OBS_VALUE)
+
+
+deaths_10_22 = dplyr::bind_rows(deaths_2000_2021,deaths_2022)
 
 head(deaths_10_22)
 tail(deaths_10_22)
@@ -17,7 +22,7 @@ sum(deaths_10_22$Obs_value == 0)
 
 deaths_10_22 %>% filter(!(AGE %in% "_T")) %>% filter(!(GEO %in% "CH")) -> deaths_10_22
 deaths_10_22 %>% filter(!(SEX %in% "T")) -> deaths_10_22
-table(deaths_10_22$AGE)
+table(deaths_10_22$AGE,useNA="always")
 
 
 deaths_10_22$ageg <- NA
@@ -26,7 +31,7 @@ deaths_10_22$ageg[deaths_10_22$AGE %in% c("Y40T44", "Y45T49", "Y50T54", "Y55T59"
 deaths_10_22$ageg[deaths_10_22$AGE %in% c("Y60T64", "Y65T69")] <- "60-69"
 deaths_10_22$ageg[deaths_10_22$AGE %in% c("Y70T74", "Y75T79")] <- "70-79"
 deaths_10_22$ageg[deaths_10_22$AGE %in% c("Y80T84", "Y85T89", "Y_GE90")] <- "80plus"
-table(deaths_10_22$ageg)
+table(deaths_10_22$ageg,useNA="always")
 
 deaths_10_22$Obs_status <- deaths_10_22$AGE <- NULL
 head(deaths_10_22)
