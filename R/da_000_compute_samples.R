@@ -8,6 +8,7 @@ da_000_compute_samples <- function() {
   
   # 1 - download and format data ----
   
+  if(FALSE) {
   ## public holidays in Switzerland by canton
   source("R/pr_001_Covariates_BankHol.R")
   ## weekly mean temperature by canton
@@ -27,7 +28,7 @@ da_000_compute_samples <- function() {
   
   ## interpolate population from yearly to weekly
   source("R/pr_007_Population_Interpolation.R")
-  
+  }
   
   # 3 - model for expected deaths ----
   source("R/pr_102_ModelRun.R")

@@ -7,6 +7,8 @@
 
 # set as working directory the folder where all the R files are.
 
+source("R/da_setup.R")
+
 # select if you want the predictions to include
 add.temperature <- TRUE
 
@@ -84,7 +86,8 @@ pop.list <- readRDS(file.path(controls$savepoint,"popfinCH_list.rds"))
 # here i have predicted 2022 just in case we update the analysis
 
 funpar <- function(X){
-  pop.tmp <- pop.list[[X]] %>% filter(year != 2022) 
+  cat(X)
+  pop.tmp <- pop.list[[X]]
   pop.tmp$year <- NULL
 
   datCV_firslop.tmp <- left_join(datCV_firslop, pop.tmp, 
@@ -98,10 +101,10 @@ funpar <- function(X){
   in.mod = inla(formula,
                 data=datCV_firslop.tmp,
                 family="Poisson",  
-                verbose = FALSE, 
+                verbose = TRUE, 
                 control.family=control.family,
                 control.compute=list(config = TRUE), 
-                control.mode=list(theta=thet, restart=T),
+                control.mode=list(theta=thet, restart=TRUE),
                 num.threads = 8, 
                 control.predictor = list(link = 1))
 
@@ -138,7 +141,7 @@ funpar <- function(X){
 t_0 <- Sys.time()
 
 # Set up parallel environment
-ncores <- 5
+ncores <- 4
 k <- 1:200
 cl_inla <- makeCluster(ncores, methods=FALSE)
 
