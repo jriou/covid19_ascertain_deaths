@@ -13,8 +13,8 @@ library(fastDummies)
 setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
 nam <- c("age_group", "canton_name", "phase", "Total")
-ext <- "corrected" # corrected_OV, corrected_OV_0.01, corrected_OV_0.001
-sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature_", ext), readRDS)
+ext <- "_corrected" # _corrected", "_corrected_OV", "_corrected_OV_0.01", "_corrected_OV_0.001"
+sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
 
 set.seed(11)
 # retrieve 1000 of the combined posteriors and remove the u-s
@@ -70,7 +70,7 @@ for(i in 1:length(nam)){
   }
 }
 
-saveRDS(combined_samples, file = paste0("savepoint/combined_samples_trun_temperature_", ext))
+saveRDS(combined_samples, file = paste0("savepoint/combined_samples_trun_temperature", ext))
 
 # get the summary statistics
 lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025, 0.975)))
