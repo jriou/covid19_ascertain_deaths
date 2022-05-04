@@ -141,7 +141,7 @@ funpar <- function(X){
 t_0 <- Sys.time()
 
 # Set up parallel environment
-ncores <- 4
+ncores <- 5
 k <- 1:200
 cl_inla <- makeCluster(ncores, methods=FALSE)
 
