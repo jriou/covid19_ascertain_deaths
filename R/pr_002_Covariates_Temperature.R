@@ -168,7 +168,16 @@ if(FALSE) {
   
 }
 
+# delete duplicates due to W53
+
+loop.df.unique = loop.df %>% 
+  ungroup() %>% 
+  dplyr::group_by(NAME) %>% 
+  dplyr::mutate(dup=duplicated(EURO_LABEL)) %>% 
+  ungroup() %>%
+  dplyr::filter(!dup) %>% 
+  dplyr::select(-dup)
 
 
-saveRDS(loop.df, file = file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
+saveRDS(loop.df.unique, file = file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
 
