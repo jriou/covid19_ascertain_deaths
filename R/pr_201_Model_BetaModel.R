@@ -16,6 +16,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   ## generic function to put in parallel, sets the mcmc setting, cleans the data, and compiles/runs the model
   nimble_sam <- function(J){
     
+    cat(J)
     # MCMC setting
     ni <- 100000  
     nt <- 90     
@@ -197,7 +198,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   
   
   
-  if(model_by !="NULL"){
+  if(!is.null(model_by)){
     
     Tot <- FALSE
     

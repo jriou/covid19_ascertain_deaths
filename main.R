@@ -114,7 +114,7 @@ if(controls$source) { # ignored upon sourcing
   if(controls$compute_glm) {
     # Regression and Bayesian model averaging procedure
     source("R/pr_201_Model_BetaModel.R")
-    pr_201_Model_BetaModel(model_by="NULL",overdispersion=TRUE,correction_expected = TRUE)
+    pr_201_Model_BetaModel(model_by=NULL,overdispersion=TRUE,correction_expected = TRUE)
     pr_201_Model_BetaModel(model_by="age_group",overdispersion=TRUE,correction_expected = TRUE)
     pr_201_Model_BetaModel(model_by="canton_name",overdispersion=TRUE,correction_expected = TRUE)
     pr_201_Model_BetaModel(model_by="phase",overdispersion=TRUE,correction_expected = TRUE)
