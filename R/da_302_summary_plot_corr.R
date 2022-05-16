@@ -25,7 +25,7 @@ da_302_summary_plot_corr <- function(dat) {
                  minor_breaks = NULL,
                  expand=expansion(add=c(4,10))) +
     scale_y_continuous(expand=expansion(mult=c(0.1,0.08))) + 
-    scale_fill_identity(name = NULL, guide = 'legend', labels = c('corr_excess all-cause deaths')) +
+    scale_fill_identity(name = NULL, guide = 'legend', labels = c('Excess all-cause deaths')) +
     scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed SARS-CoV-2-related deaths") +
     theme(legend.position = c(.75,.75),
           legend.spacing = unit(0,"mm"),

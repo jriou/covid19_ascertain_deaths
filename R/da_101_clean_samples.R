@@ -7,7 +7,6 @@ da_101_clean_samples <- function(dat) {
   # samples from the INLA model with temperature
   dat2 = dat %>% 
     dplyr::rename(canton_id=ID_space,
-                  canton_name=NAME.POP,
                   age=age.group,
                   week_raw=EURO_LABEL) %>%
     dplyr::left_join(cantons_ids) %>% 
