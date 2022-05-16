@@ -8,7 +8,7 @@ controls = list(source=FALSE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
                 merge_samples_bag_data=TRUE,
-                compute_glm=FALSE,
+                compute_glm=TRUE,
                 savepoint=paste0("savepoint_",end_date))
 
 # set-up
