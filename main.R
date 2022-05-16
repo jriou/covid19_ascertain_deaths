@@ -8,6 +8,7 @@ controls = list(source=TRUE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
                 merge_samples_bag_data=TRUE,
+                summarise_merg=FALSE,
                 compute_glm=TRUE,
                 savepoint=paste0("savepoint_",end_date))
 
@@ -46,56 +47,54 @@ if(controls$source) { # ignored upon sourcing
   
   
   # Block 4: summarize ----
-  
-  summ_all_temp = da_201_summarise_by(merg,by=NULL)
-  summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
-  
-  summ_week_temp = da_201_summarise_by(merg,by=c("week"))
-  summ_week_temp_corr = da_202_summarise_by_corr(merg,by=c("week"))
-  
-  summ_age_temp = da_201_summarise_by(merg,by=c("age_group"))
-  summ_age_temp_corr = da_202_summarise_by_corr(merg,by=c("age_group"))
-  
-  summ_phase_temp = da_201_summarise_by(merg,by=c("phase"))
-  summ_phase_temp_corr = da_202_summarise_by_corr(merg,by=c("phase"))
-  
-  summ_week_canton_temp = da_201_summarise_by(merg,by=c("phase","week","canton"))
-  summ_week_canton_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","canton"))
-  
-  summ_week_age_temp = da_201_summarise_by(merg,by=c("phase","week","age_group"))
-  summ_week_age_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","age_group"))
-  
-  # Save point
-  save(list=ls(pattern = "summ_"),file=file.path(controls$savepoint,"summ.Rdata"))
-  
-  
-  # Start from save point upon sourcing
-  load(file.path(controls$savepoint,"summ.Rdata"))
-  
-  
-  # Block 5: descriptive figures ----
-  
-  # Laboratory-confirmed deaths and excess death over time
-  summ_week_temp %>% 
-    da_301_summary_plot()
-  summ_week_temp_corr %>% 
-    da_302_summary_plot_corr()
-  
-  # Select age group
-  summ_week_age_temp %>% 
-    dplyr::filter(age_group=="80+") %>% 
-    da_301_summary_plot()
-  summ_week_age_temp_corr %>% 
-    dplyr::filter(age_group=="80+") %>% 
-    da_302_summary_plot_corr()
-  
-  # Select canton
-  summ_week_canton_temp_corr %>% 
-    dplyr::filter(canton=="AG") %>% 
-    da_302_summary_plot_corr()
-  summ_week_canton_temp_corr %>% 
-    dplyr::filter(canton=="BE") %>% 
-    da_302_summary_plot_corr()
+  if(controls$summarise_merg) {
+    summ_all_temp = da_201_summarise_by(merg,by=NULL)
+    summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
+    
+    summ_week_temp = da_201_summarise_by(merg,by=c("week"))
+    summ_week_temp_corr = da_202_summarise_by_corr(merg,by=c("week"))
+    
+    summ_age_temp = da_201_summarise_by(merg,by=c("age_group"))
+    summ_age_temp_corr = da_202_summarise_by_corr(merg,by=c("age_group"))
+    
+    summ_phase_temp = da_201_summarise_by(merg,by=c("phase"))
+    summ_phase_temp_corr = da_202_summarise_by_corr(merg,by=c("phase"))
+    
+    summ_week_canton_temp = da_201_summarise_by(merg,by=c("phase","week","canton"))
+    summ_week_canton_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","canton"))
+    
+    summ_week_age_temp = da_201_summarise_by(merg,by=c("phase","week","age_group"))
+    summ_week_age_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","age_group"))
+    
+    # Save point
+    save(list=ls(pattern = "summ_"),file=file.path(controls$savepoint,"summ.Rdata"))
+    load(file.path(controls$savepoint,"summ.Rdata"))
+    
+    
+    # Block 5: descriptive figures ----
+    
+    # Laboratory-confirmed deaths and excess death over time
+    summ_week_temp %>% 
+      da_301_summary_plot()
+    summ_week_temp_corr %>% 
+      da_302_summary_plot_corr()
+    
+    # Select age group
+    summ_week_age_temp %>% 
+      dplyr::filter(age_group=="80+") %>% 
+      da_301_summary_plot()
+    summ_week_age_temp_corr %>% 
+      dplyr::filter(age_group=="80+") %>% 
+      da_302_summary_plot_corr()
+    
+    # Select canton
+    summ_week_canton_temp_corr %>% 
+      dplyr::filter(canton=="AG") %>% 
+      da_302_summary_plot_corr()
+    summ_week_canton_temp_corr %>% 
+      dplyr::filter(canton=="BE") %>% 
+      da_302_summary_plot_corr()
+  }
   
   # Block 6: links between labo_deaths and observed deaths (ignoring uncertainty for now)
   
