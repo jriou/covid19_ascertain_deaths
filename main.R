@@ -4,7 +4,7 @@
 
 # controls
 end_date = as.Date("2022-04-19")
-controls = list(source=FALSE,
+controls = list(source=TRUE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
                 merge_samples_bag_data=TRUE,
