@@ -197,7 +197,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   
   
   
-  if(is.null(model_by) == FALSE){
+  if(model_by !="NULL"){
     
     Tot <- FALSE
     
