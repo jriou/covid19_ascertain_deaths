@@ -7,7 +7,7 @@ end_date = as.Date("2022-04-19")
 controls = list(source=FALSE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
-                merge_samples_bag_data=FALSE,
+                merge_samples_bag_data=TRUE,
                 compute_glm=FALSE,
                 savepoint=paste0("savepoint_",end_date))
 
