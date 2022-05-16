@@ -7,7 +7,7 @@ end_date = as.Date("2022-04-19")
 controls = list(source=TRUE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
-                merge_samples_bag_data=TRUE,
+                merge_samples_bag_data=FALSE,
                 summarise_merg=FALSE,
                 compute_glm=TRUE,
                 savepoint=paste0("savepoint_",end_date))
@@ -68,11 +68,12 @@ if(controls$source) { # ignored upon sourcing
     
     # Save point
     save(list=ls(pattern = "summ_"),file=file.path(controls$savepoint,"summ.Rdata"))
+  }
+  
+  
+  # Block 5: descriptive figures ----
+  if(FALSE) {
     load(file.path(controls$savepoint,"summ.Rdata"))
-    
-    
-    # Block 5: descriptive figures ----
-    
     # Laboratory-confirmed deaths and excess death over time
     summ_week_temp %>% 
       da_301_summary_plot()
@@ -96,9 +97,9 @@ if(controls$source) { # ignored upon sourcing
       da_302_summary_plot_corr()
   }
   
-  # Block 6: links between labo_deaths and observed deaths (ignoring uncertainty for now)
+  # Block 6: explore links between labo_deaths and observed deaths (ignoring uncertainty for now)
   
-  if(controls$source) {
+  if(FALSE) {
     summ_week_temp %>% 
       ggplot() +
       geom_point(aes(x=labo_deaths,y=deaths,colour=week)) 
@@ -128,14 +129,15 @@ if(controls$source) { # ignored upon sourcing
   }
   
   # Block 8: check outputs ----
-  
-  # Load outputs from the multilevel regression and Bayesian model averaging procedure
-  regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV"))
-  
-  # Format outputs
-  summ_regbma  = da_403_format_regbma2(regbma)
-  
-  # Plot
-  da_404_plot_regbma(summ_regbma)
+  if(FALSE) {
+    # Load outputs from the multilevel regression and Bayesian model averaging procedure
+    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV"))
+    
+    # Format outputs
+    summ_regbma  = da_403_format_regbma2(regbma)
+    
+    # Plot
+    da_404_plot_regbma(summ_regbma)
+  }
   
 }
