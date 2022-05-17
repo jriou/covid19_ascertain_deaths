@@ -12,8 +12,9 @@ da_104_get_excess <- function(dat) {
                   mortality_rate = exp_deaths/population) 
   week.df = data.frame(week = unique(dat2$week)) %>% 
     mutate(week_nb = rank(week))
-  dat2 = dat2 %>% left_join(., week.df,by="week") %>% 
-    arrange(id_loop,week_nb)
+  dat2 = dat2 %>% 
+    dplyr::left_join(., week.df,by="week") %>% 
+    dplyr::arrange(id_loop,week_nb)
   
   # loop to compute shaved population and corrected expected deaths
   dat3 = list()

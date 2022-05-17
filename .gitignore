@@ -1,6 +1,10 @@
 # Data
 /savepoint/*
+/savepoint*/*
+/sensitive/*
 /samples/*
+/data/meteoswiss/*
+/misc/*
 
 # History files
 .Rhistory
