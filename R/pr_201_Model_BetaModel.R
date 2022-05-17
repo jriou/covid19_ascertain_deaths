@@ -3,25 +3,20 @@
 # description: NIMBLE BMA + SMOOTHING
 #:::::::::::::::::::::::::::::
 
-pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
+pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected) {
   # load data
   merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
   # select to use the predictions including the temperature
   temperature <- TRUE
   # select whether to exclude phase 7 or not (TRUE includes it)
-  phase7 <- FALSE
+  phase7 <- TRUE
   select.rate.param <- 0.001 # 0.1 is set for the main one
-  
-  
-  # by <- NULL # this corresponds to total
-  # by <- "age_group"
-  # by <- "canton_name"
-  # by <- "phase"
   
   
   ## generic function to put in parallel, sets the mcmc setting, cleans the data, and compiles/runs the model
   nimble_sam <- function(J){
     
+    cat(J)
     # MCMC setting
     ni <- 100000  
     nt <- 90     
@@ -158,7 +153,7 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
   ########
   ########
   # Total, age, canton and phase
-
+  
   
   if(temperature == TRUE){
     dat <- merg
@@ -185,7 +180,7 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
   
   if(correction_expected == TRUE){
     dat %>% 
-      group_by_at(vars("week", by, "it")) %>% 
+      group_by_at(vars("week", model_by, "it")) %>% 
       summarise(deaths=sum(deaths), 
                 exp_deaths = sum(corr_exp_deaths),
                 labo_deaths = sum(labo_deaths)) -> dat
@@ -193,7 +188,7 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
     cor.nam <- "_corrected"
   }else{
     dat %>% 
-      group_by_at(vars("week", by, "it")) %>% 
+      group_by_at(vars("week", model_by, "it")) %>% 
       summarise(deaths=sum(deaths), 
                 exp_deaths = sum(exp_deaths),
                 labo_deaths = sum(labo_deaths)) -> dat
@@ -203,7 +198,7 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
   
   
   
-  if(is.null(by) == FALSE){
+  if(!is.null(model_by)){
     
     Tot <- FALSE
     
@@ -217,17 +212,17 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
       rateparam <- ""
     }
     
-    dummies_interaction <- dummy_cols(dat[,by])[,-1]
+    dummies_interaction <- dummy_cols(dat[,model_by])[,-1]
     dummies_interaction * rep(dat$exp_deaths, ncol(dummies_interaction)) -> exp_deaths_interaction
     dummies_interaction * rep(dat$labo_deaths, ncol(dummies_interaction)) -> labo_deaths_interaction
     
     
-    if(by == "age_group"){
+    if(model_by == "age_group"){
       colnames(exp_deaths_interaction) <- c("exp_int_0_39", "exp_int_40_59", "exp_int_60_69", "exp_int_70_79", "exp_int_80")
       colnames(labo_deaths_interaction) <- c("labo_int_0_39", "labo_int_40_59", "labo_int_60_69", "labo_int_70_79", "labo_int_80")
     }
     
-    if(by == "canton_name" | by == "phase"){
+    if(model_by == "canton_name" | model_by == "phase"){
       colnames(exp_deaths_interaction) <- 
         paste0("exp_int_", colnames(exp_deaths_interaction))
       colnames(labo_deaths_interaction) <- 
@@ -238,7 +233,7 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
     
   }else{
     dat_fin <- dat
-    by <- "Total"
+    model_by <- "Total"
     Tot <- TRUE
     
     if(overdispersion == TRUE){
@@ -276,12 +271,12 @@ pr_201_Model_BetaModel = function(by, overdispersion, correction_expected) {
   t_1 <- Sys.time()
   t_1 - t_0
   
-  saveRDS(result, file = paste0(controls$savepoint,"SamplesBMAtrun_", by, "_", nam, cor.nam, ov, rateparam))
+  saveRDS(result, file = paste0(controls$savepoint,"SamplesBMAtrun_", model_by, "_", nam, cor.nam, ov, rateparam))
 }
 
-# by = NULL, takes ~20min
-# by = age_group, takes ~1.5h
-# by = canton, takes ~36h
-# by = phase, takes ~30min
+# model_by = NULL, takes ~20min
+# model_by = age_group, takes ~1.5h
+# model_by = canton, takes ~36h
+# model_by = phase, takes ~30min
 
 

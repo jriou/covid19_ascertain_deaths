@@ -55,6 +55,7 @@ date_phases = phases %>%
   dplyr::group_by(phase) %>%
   dplyr::summarise(start_date=min(week),
                    end_date=max(week)+6)
+# update if needed using da_105_update_phases.R
 
 # small custom functions ----
 qsum = function(a,b,c) paste0(formatC(a, format="f", big.mark=",", digits=0),
