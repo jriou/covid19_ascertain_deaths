@@ -4,13 +4,11 @@
 #:::::::::::::::::::::::::::::
 
 
-nam <- c("age_group", "canton_name", "phase", "Total")
-ext <- "_corrected" # _corrected", "_corrected_OV", "_corrected_OV_0.01", "_corrected_OV_0.001"
-<<<<<<< HEAD:R/pr_202_CombineSamples.R
-sampls <- lapply(paste0("savepoint/SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
-=======
-sampls <- lapply(paste0(controls$savepoint,"SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
->>>>>>> eb6ce3a0b33415af15b13cde5a73ca5e2f3e1731:R/pr_202_Model_CombineSamples.R
+nam <- c("age_group", "canton", "phase", "Total")
+ext <-  "_corrected_OV_0.001"
+
+sampls <- lapply(paste0(controls$savepoint,"/SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
+
 
 set.seed(11)
 # retrieve 1000 of the combined posteriors and remove the u-s
@@ -18,7 +16,7 @@ lapply(sampls, function(X){
   Y <- do.call(rbind, X)
   Y <- Y[sample(1:nrow(Y), size = 1000),]
   Y <- as_tibble(Y)
-  Y %>% select(starts_with("beta") | starts_with("mean") | starts_with("sd")) -> Y
+  Y %>% dplyr::select(starts_with("beta") | starts_with("mean") | starts_with("sd")) -> Y
   return(Y)
 }) -> combined_samples
 
@@ -38,12 +36,12 @@ for(i in 1:length(nam)){
     by <- NULL
   }
   
-  dat <- samp
+  dat <- merg
   
   set.seed(11)
   ran.sam.it <- sample(1:1000, size = 200)
   dat$it <- as.numeric(as.factor(dat$it))
-  dat %>% filter(it %in% ran.sam.it, !(phase %in% 7)) -> dat
+  dat %>% filter(it %in% ran.sam.it) -> dat
   
   dat %>% 
     group_by_at(vars("week", by, "it")) %>% 
@@ -66,14 +64,8 @@ for(i in 1:length(nam)){
   }
 }
 
-<<<<<<< HEAD:R/pr_202_CombineSamples.R
-saveRDS(combined_samples, file = paste0("savepoint/combined_samples_trun_temperature", ext))
-=======
-saveRDS(combined_samples, file = paste0(controls$savepoint,"combined_samples_trun_temperature", ext))
->>>>>>> eb6ce3a0b33415af15b13cde5a73ca5e2f3e1731:R/pr_202_Model_CombineSamples.R
 
-# get the summary statistics
-lapply(combined_samples, function(Y) apply(Y, 2, quantile, probs = c(0.5, 0.025, 0.975)))
+saveRDS(combined_samples, file = paste0(controls$savepoint,"combined_samples_trun_temperature", ext))
 
 
 

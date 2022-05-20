@@ -114,24 +114,20 @@ if(controls$source) { # ignored upon sourcing
   if(controls$compute_glm) {
     # Regression and Bayesian model averaging procedure
     source("R/pr_201_Model_BetaModel.R")
-    pr_201_Model_BetaModel(model_by=NULL,overdispersion=TRUE,correction_expected = TRUE)
-    pr_201_Model_BetaModel(model_by="age_group",overdispersion=TRUE,correction_expected = TRUE)
-    pr_201_Model_BetaModel(model_by="canton_name",overdispersion=TRUE,correction_expected = TRUE)
-    pr_201_Model_BetaModel(model_by="phase",overdispersion=TRUE,correction_expected = TRUE)
+    pr_201_Model_BetaModel(model_by = NULL, overdispersion = TRUE, correction_expected = TRUE)
+    pr_201_Model_BetaModel(model_by ="age_group", overdispersion = TRUE, correction_expected = TRUE)
+    pr_201_Model_BetaModel(model_by = "canton_name", overdispersion = TRUE, correction_expected = TRUE)
+    pr_201_Model_BetaModel(model_by = "phase", overdispersion=TRUE, correction_expected = TRUE)
     
     # Combine results
     source("R/pr_202_Model_CombineSamples.R")
-    
-    # Run various checks
-    source("R/pr_301_Checks_Overdispersion.R")
-    source("R/pr_302_Checks_PosteriorPredictive.R")
-    source("R/pr_303_Checks_CompareOVmodels.R")
+  
   }
   
   # Block 8: check outputs ----
   if(FALSE) {
     # Load outputs from the multilevel regression and Bayesian model averaging procedure
-    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV"))
+    regbma = readRDS(file.path(controls$savepoint,"/combined_samples_trun_temperature_corrected_OV_0.001"))
     
     # Format outputs
     summ_regbma  = da_403_format_regbma2(regbma)
