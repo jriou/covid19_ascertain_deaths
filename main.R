@@ -3,13 +3,14 @@
 # Started 2022-02-17
 
 # controls
-end_date = as.Date("2022-04-19")
-controls = list(source=FALSE,
+end_date = as.Date("2022-06-02")
+controls = list(source=TRUE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
-                merge_samples_bag_data=FALSE,
+                merge_samples_bag_data=TRUE,
                 summarise_merg=FALSE,
                 compute_glm=FALSE,
+                get_outputs=TRUE,
                 savepoint=paste0("savepoint_",end_date))
 
 # set-up
@@ -41,13 +42,13 @@ if(controls$source) { # ignored upon sourcing
   # Block 3: merge ----
   if(controls$merge_samples_bag_data) {
     merg = da_103_merge(samp,labd)
-    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples.rds"))
+    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples_rwyear.rds"))
   }
-  merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
-  
   
   # Block 4: summarize ----
   if(controls$summarise_merg) {
+    merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+    
     summ_all_temp = da_201_summarise_by(merg,by=NULL)
     summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
     
@@ -98,7 +99,6 @@ if(controls$source) { # ignored upon sourcing
   }
   
   # Block 6: explore links between labo_deaths and observed deaths (ignoring uncertainty for now)
-  
   if(FALSE) {
     summ_week_temp %>% 
       ggplot() +
@@ -110,7 +110,6 @@ if(controls$source) { # ignored upon sourcing
   
   
   # Block 7: GLM and Bayesian model averaging ----
-  
   if(controls$compute_glm) {
     # Regression and Bayesian model averaging procedure
     source("R/pr_201_Model_BetaModel.R")
@@ -129,9 +128,12 @@ if(controls$source) { # ignored upon sourcing
   }
   
   # Block 8: check outputs ----
-  if(FALSE) {
+  if(controls$get_outputs) {
+    # load summaries
+    load(file.path(controls$savepoint,"summ.Rdata"))
+    
     # Load outputs from the multilevel regression and Bayesian model averaging procedure
-    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV"))
+    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV_0.001"))
     
     # Format outputs
     summ_regbma  = da_403_format_regbma2(regbma)

@@ -5,15 +5,16 @@
 
 da_301_summary_plot <- function(dat) {
   # filter
-  dat = dat %>% 
-    dplyr::filter(week<as.Date("2021-12-20"))
-  date_phases2 = date_phases %>% 
-    dplyr::filter(start_date<as.Date("2021-12-20"))
+  date_max = max(dat$week)
+  date_phases2 = date_phases %>%
+    dplyr::mutate(end_date=ymd(ifelse(end_date>date_max,as.character(date_max+6),as.character(end_date))))
+  jan1= tibble(week=as.Date(c("2020-01-01","2021-01-01","2022-01-01")))
   # sort out limits
   lims = c(min(dat$excess_upb)*1.1,max(dat$excess_upb)*1.15)
   # plot weekly counts
   g1 = dat %>% 
     ggplot(aes(x=week)) +
+    # geom_vline(data=jan1,aes(xintercept=week), colour="grey50",alpha=.2,linetype=2) +
     geom_hline(yintercept=0,col="grey50") +
     geom_ribbon(aes(ymin=excess_lob,ymax=excess_upb,fill=col_excess1),alpha=.3) +
     geom_line(aes(y=labo_deaths,col="col")) +

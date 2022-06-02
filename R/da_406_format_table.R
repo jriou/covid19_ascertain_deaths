@@ -8,6 +8,7 @@ da_406_format_table <- function(summaries,betas) {
     dplyr::transmute(laboratory=formatC(labo_deaths, format="f", big.mark=",", digits=0),
                   observed_deaths=formatC(deaths, format="f", big.mark=",", digits=0),
                   exp_deaths=qsum(exp_deaths_med,exp_deaths_lob,exp_deaths_upb),
+                  exp_deaths=qsum(exp_deaths_med,exp_deaths_lob,exp_deaths_upb),
                   excess=qsum(excess_med,excess_lob,excess_upb)) %>% 
     tidyr::pivot_longer(cols=1:4)
   

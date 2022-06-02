@@ -28,6 +28,7 @@ library(nimble)
 library(doParallel) 
 library(fastDummies) 
 library(cowplot)
+library(RColorBrewer)
 
 # set paths ----
 path_script = "R/"

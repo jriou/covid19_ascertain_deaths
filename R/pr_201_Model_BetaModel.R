@@ -249,7 +249,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   }
   
   t_0 <- Sys.time()
-  no_cores <- parallel::detectCores()
+  no_cores <- 10
   cl <- makeCluster(no_cores) 
   
   if(overdispersion == TRUE){

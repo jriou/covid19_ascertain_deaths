@@ -5,10 +5,11 @@
 
 da_302_summary_plot_corr <- function(dat) {
   # filter
-  dat = dat %>% 
-    dplyr::filter(week<as.Date("2021-12-20"))
-  date_phases2 = date_phases %>% 
-    dplyr::filter(start_date<as.Date("2021-12-20"))
+  # dat = dat %>% 
+    # dplyr::filter(week<as.Date("2021-12-20"))
+  date_max = max(dat$week)
+  date_phases2 = date_phases %>%
+    dplyr::mutate(end_date=ymd(ifelse(end_date>date_max,as.character(date_max),as.character(end_date))))
   # sort out limits
   lims = c(min(dat$corr_excess_upb)*1.1,max(dat$corr_excess_upb)*1.15)
   # plot weekly counts
