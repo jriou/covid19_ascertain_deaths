@@ -41,9 +41,9 @@ if(controls$source) { # ignored upon sourcing
   # Block 3: merge ----
   if(controls$merge_samples_bag_data) {
     merg = da_103_merge(samp,labd)
-    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples.rds"))
+    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples_finmodel.rds"))
   }
-  merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+  merg = readRDS(file.path(controls$savepoint,"merged_samples_finmodel.rds"))
   
   
   # Block 4: summarize ----
@@ -127,7 +127,7 @@ if(controls$source) { # ignored upon sourcing
   # Block 8: check outputs ----
   if(FALSE) {
     # Load outputs from the multilevel regression and Bayesian model averaging procedure
-    regbma = readRDS(file.path(controls$savepoint,"/combined_samples_trun_temperature_corrected_OV_0.001"))
+    regbma = readRDS(file.path(controls$savepoint,"/combined_samples_trun_temperature_corrected_OV_0.001_finmodel"))
     
     # Format outputs
     summ_regbma  = da_403_format_regbma2(regbma)

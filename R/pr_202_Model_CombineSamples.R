@@ -3,11 +3,11 @@
 # description: Extract samples
 #:::::::::::::::::::::::::::::
 
-
 nam <- c("age_group", "canton", "phase", "Total")
-ext <-  "_corrected_OV_0.001"
+ext <-  "_corrected_OV_0.001_finmodel"
 
-sampls <- lapply(paste0(controls$savepoint,"/SamplesBMAtrun_", nam, "_temperature", ext), readRDS)
+sampls <- lapply(paste0("SamplesBMAtrun_", nam, "_temperature", ext), 
+                 function(X) readRDS(file.path(controls$savepoint, X)))
 
 
 set.seed(11)
@@ -25,7 +25,7 @@ names(combined_samples) <- nam
 
 # need to go back and retrieve the names of the coefficients, thus i need the results
 # of the INLA modelling.
-merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+merg = readRDS(file.path(controls$savepoint, "merged_samples_finmodel.rds"))
 
 
 for(i in 1:length(nam)){
@@ -65,7 +65,7 @@ for(i in 1:length(nam)){
 }
 
 
-saveRDS(combined_samples, file = paste0(controls$savepoint,"combined_samples_trun_temperature", ext))
+saveRDS(combined_samples, file.path(controls$savepoint, paste0("combined_samples_trun_temperature", ext)))
 
 
 

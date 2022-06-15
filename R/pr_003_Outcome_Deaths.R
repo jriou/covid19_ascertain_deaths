@@ -7,11 +7,14 @@
 # and store it as ch_deaths_YEAR.csv in the data folder
 
 # Clean deaths
-
+setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 deaths_2000_2021 <- read.csv("data/ch_deaths_2000_2021.csv", sep = ";", header = TRUE)
-deaths_2022 <- read.csv("data/ch_deaths_2022.csv", sep = ";", header = TRUE) %>% 
+deaths_2022 <- read.csv("data/ch_deaths_2022_2.csv", sep = ";", header = TRUE) %>% 
   dplyr::rename(Obs_status=OBS_STATUS,Obs_value=OBS_VALUE)
 
+head(deaths_2000_2021)
+head(deaths_2022)
+colnames(deaths_2022)[1] <- "TIME_PERIOD"
 
 deaths_10_22 = dplyr::bind_rows(deaths_2000_2021,deaths_2022)
 
@@ -39,7 +42,8 @@ head(deaths_10_22)
 deaths_10_22$SEX[deaths_10_22$SEX %in% "F"] <- "female"
 deaths_10_22$SEX[deaths_10_22$SEX %in% "M"] <- "male"
 
-deaths_10_22 %>% group_by(TIME_PERIOD, GEO, SEX, ageg) %>% summarise(deaths = sum(Obs_value)) -> deaths_10_22
+
+deaths_10_22 %>% dplyr::group_by(TIME_PERIOD, GEO, SEX, ageg) %>% dplyr::summarize(deaths = sum(Obs_value)) -> deaths_10_22
 
 
 expand.grid(ID_space = unique(deaths_10_22$GEO), age.group = unique(deaths_10_22$ageg), sex = unique(deaths_10_22$SEX), 
@@ -67,7 +71,7 @@ deaths_10_22$year <- substr(deaths_10_22$EURO_LABEL, start = 1, stop = 4)
 #   facet_wrap(~ ID_space,scales = "free")
 
 findata <- deaths_10_22
-findata %>% filter(year >= 2015) -> findata
+# findata %>% filter(year >= 2015) -> findata
 
 
 ##
@@ -75,14 +79,14 @@ findata %>% filter(year >= 2015) -> findata
 ## Bring everything together
 
 
-hol <- readRDS(file.path(controls$savepoint,"holCH.rds"))
-tmp <- readRDS(file.path(controls$savepoint,"TemperatureWeeklyCH.rds"))
+hol <- readRDS(file.path("data","holCH09_22.rds"))
+tmp <- readRDS(file.path("data","TemperatureWeekly2010_2022_CH"))
 shp <- sf::read_sf("data/shp.shp")
 
 
-nam <- c("GraubÃ¼nden", "Bern", "Valais", "Vaud", "Ticino", "St. Gallen", "ZÃ¼rich", "Fribourg", "Luzern", 
-  "Aargau", "Uri", "Thurgau", "Schwyz", "Jura", "NeuchÃ¢tel", "Solothurn", "Glarus", "Basel-Landschaft", 
-  "Obwalden", "Nidwalden", "GenÃ¨ve", "Schaffhausen", "Appenzell Ausserrhoden", "Zug", "Appenzell Innerrhoden", 
+nam <- c("Graubünden", "Bern", "Valais", "Vaud", "Ticino", "St. Gallen", "Zürich", "Fribourg", "Luzern", 
+  "Aargau", "Uri", "Thurgau", "Schwyz", "Jura", "Neuchâtel", "Solothurn", "Glarus", "Basel-Landschaft", 
+  "Obwalden", "Nidwalden", "Genève", "Schaffhausen", "Appenzell Ausserrhoden", "Zug", "Appenzell Innerrhoden", 
   "Basel-Stadt")
 
 linkCH <- data.frame(
@@ -98,7 +102,7 @@ linkCH <- data.frame(
 )
 
 
-EUROSTAT_ISO <- readRDS("data/EUROSTAT_ISO")
+EUROSTAT_ISO <- readRDS("data/EUROSTAT_ISO_2")
 findata <- left_join(findata, linkCH, by = c("ID_space" = "NUTS3")) 
 
 EUROSTAT_ISO$EURO_TIME <- as.character(EUROSTAT_ISO$EURO_TIME)
@@ -119,10 +123,19 @@ findata$hol[findata$hol>=1] <- 1
 findata$hol.x <- findata$hol.y <- NULL
 
 # and add the temperature 
-findata <- left_join(findata, tmp, by = c("NAME" = "NAME", "EURO_LABEL" = "EURO_LABEL"))  
+findata <- left_join(findata, tmp, by = c("ID_space" = "ID_PE", "EURO_LABEL" = "EURO_LABEL"))  
 
 # add canton names
-findata <-  left_join(findata,cantons_ids,by=c("CN"="canton"))
+# findata <-  left_join(findata,cantons_ids,by=c("CN"="canton"))
 
-saveRDS(findata, file = file.path(controls$savepoint,"findata.rds"))
 
+
+findata %>% filter(year >= 2010) -> ttmp
+ttmp <- ttmp[complete.cases(ttmp$mean.temp),]
+
+
+saveRDS(findata, file = file.path("data","findata_10_22.rds"))
+
+
+##
+##
