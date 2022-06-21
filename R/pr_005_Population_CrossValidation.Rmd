@@ -259,19 +259,19 @@ data.frame(coverage = c(res_checks_noint$cov.prob,
            type = rep(c("BASE", "OV", "OV_INT", "VC", "VC_OV", "VC_OV_INT"))
 )
 
-data.frame(RMSE = sqrt(c(res_checks_noint$MSE, 
+data.frame(MSE = c(res_checks_noint$MSE, 
                         res_checks_nointov$MSE, 
                         res_checks_intov$MSE, 
                         res_checks_ranslop$MSE,
                         res_checks_ranslopov$MSE,
-                        res_checks_ranslopintov$MSE)),  
+                        res_checks_ranslopintov$MSE),  
            
            type = factor(c("BASE", "OV", "OV_INT", "VC", "VC_OV", "VC_OV_INT"), 
                          levels = c("BASE", "OV", "OV_INT", "VC", "VC_OV", "VC_OV_INT"))) -> res_MSE
 
-ggplot() + geom_boxplot(data = res_MSE, aes(x = type, y = RMSE), outlier.size = 1.2) + 
+ggplot() + geom_boxplot(data = res_MSE, aes(x = type, y = MSE), outlier.size = 1.2) + 
   theme_bw() + scale_fill_viridis_d() + ylab("RMSE")
-res_MSE %>% group_by(type) %>% summarize(med = median(RMSE))
+res_MSE %>% group_by(type) %>% summarize(med = mean(MSE))  %>% summarize(med = sqrt(med))
 
 data.frame(bias = c(res_checks_noint$bias, 
                          res_checks_nointov$bias, 
