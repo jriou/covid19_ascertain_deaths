@@ -21,6 +21,13 @@ da_405_format_beta <- function(x,select_group=NULL,select_beta=NULL,trans="",dig
       dplyr::select(-x)
     unit = "%"
   }
+  if(trans=="1/") {
+    x = x %>% dplyr::mutate(beta_med=1/beta_med*100,
+                            tmp=beta_lb,
+                            beta_lb=1/beta_ub*100,
+                            beta_ub=1/tmp*100) 
+    unit = "%"
+  }
   res = x %>% 
     dplyr::mutate(y=paste0(formatC(beta_med,digits=digits,format="f"),
                               unit," (95%CrI: ",

@@ -3,11 +3,11 @@
 # Started 2022-02-17
 
 # controls
-end_date = as.Date("2022-06-02")
+end_date = as.Date("2022-06-15")
 controls = list(source=TRUE,
                 compute_sample=FALSE,
                 update_bag_data=FALSE,
-                merge_samples_bag_data=TRUE,
+                merge_samples_bag_data=FALSE,
                 summarise_merg=FALSE,
                 compute_glm=FALSE,
                 get_outputs=TRUE,
@@ -34,39 +34,38 @@ if(controls$source) { # ignored upon sourcing
   
   # Block 2: samples of expected deaths from historical trends ----
   if(controls$merge_samples_bag_data) {
-    samp = da_001_load_samples()
-    samp = da_101_clean_samples(samp)
-    samp = da_104_get_excess(samp)
+    samp = da_001_load_samples(); cat("1")
+    samp = da_101_clean_samples(samp); cat("2")
+    samp = da_104_get_excess(samp); cat("3")
   }
   
   # Block 3: merge ----
   if(controls$merge_samples_bag_data) {
-    merg = da_103_merge(samp,labd)
-    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples_rwyear.rds"))
+    merg = da_103_merge(samp,labd); cat("4")
+    saveRDS(merg,file=file.path(controls$savepoint,"merged_samples.rds"))
   }
   
   # Block 4: summarize ----
   if(controls$summarise_merg) {
     merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
     
+    # summarize excess and related metrics
     summ_all_temp = da_201_summarise_by(merg,by=NULL)
-    summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
-    
+    summ_year_temp = da_201_summarise_by(merg,by="year")
     summ_week_temp = da_201_summarise_by(merg,by=c("week"))
-    summ_week_temp_corr = da_202_summarise_by_corr(merg,by=c("week"))
-    
     summ_age_temp = da_201_summarise_by(merg,by=c("age_group"))
-    summ_age_temp_corr = da_202_summarise_by_corr(merg,by=c("age_group"))
-    
+    summ_age_phase_temp = da_201_summarise_by(merg,by=c("age_group","phase"))
     summ_phase_temp = da_201_summarise_by(merg,by=c("phase"))
-    summ_phase_temp_corr = da_202_summarise_by_corr(merg,by=c("phase"))
-    
     summ_week_canton_temp = da_201_summarise_by(merg,by=c("phase","week","canton"))
-    summ_week_canton_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","canton"))
-    
+    summ_canton_temp = da_201_summarise_by(merg,by=c("canton"))
+    summ_phase_canton_temp = da_201_summarise_by(merg,by=c("phase","canton"))
     summ_week_age_temp = da_201_summarise_by(merg,by=c("phase","week","age_group"))
-    summ_week_age_temp_corr = da_202_summarise_by_corr(merg,by=c("phase","week","age_group"))
-    
+
+    # correlation between excess and lab deaths
+    summ_pearson_week = da_203_pearson(merg,by="week")
+    summ_pearson_week_age = da_203_pearson(merg,by=c("week","age_group"))
+    summ_pearson_week_canton = da_203_pearson(merg,by=c("week","canton"))
+
     # Save point
     save(list=ls(pattern = "summ_"),file=file.path(controls$savepoint,"summ.Rdata"))
   }
@@ -95,6 +94,9 @@ if(controls$source) { # ignored upon sourcing
       da_302_summary_plot_corr()
     summ_week_canton_temp_corr %>% 
       dplyr::filter(canton=="BE") %>% 
+      da_302_summary_plot_corr()
+    summ_week_canton_temp_corr %>% 
+      dplyr::filter(canton=="UR") %>% 
       da_302_summary_plot_corr()
   }
   
@@ -125,21 +127,25 @@ if(controls$source) { # ignored upon sourcing
     source("R/pr_301_Checks_Overdispersion.R")
     source("R/pr_302_Checks_PosteriorPredictive.R")
     source("R/pr_303_Checks_CompareOVmodels.R")
-  }
-  
-  # Block 8: check outputs ----
-  if(controls$get_outputs) {
-    # load summaries
-    load(file.path(controls$savepoint,"summ.Rdata"))
     
     # Load outputs from the multilevel regression and Bayesian model averaging procedure
-    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV_0.001"))
+    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV_0.001.gz"))
     
     # Format outputs
     summ_regbma  = da_403_format_regbma2(regbma)
     
-    # Plot
-    da_404_plot_regbma(summ_regbma)
+    # Compute deaths indirectly caused or averted (beta_2*expected)
+    merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+    summ_all_temp_indirect = da_204_summarise_indirect(merg,regbma)
+    
+    # Save point
+    save(summ_regbma,summ_all_temp_indirect,file=file.path(controls$savepoint,"summ_bma.Rdata"))
   }
   
+  # Block 8: load outputs ----
+  if(controls$get_outputs) {
+    # load summaries
+    load(file.path(controls$savepoint,"summ.Rdata"))
+    load(file.path(controls$savepoint,"summ_bma.Rdata"))
+  }
 }

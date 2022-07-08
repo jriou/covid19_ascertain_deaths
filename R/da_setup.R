@@ -29,6 +29,7 @@ library(doParallel)
 library(fastDummies) 
 library(cowplot)
 library(RColorBrewer)
+library(flextable)
 
 # set paths ----
 path_script = "R/"
@@ -71,8 +72,20 @@ qsumperc = function(a,b,c) paste0(formatC(a*100, format="f", big.mark=",", digit
                               " to ",
                               formatC(c*100, format="f", big.mark=",", digits=0),
                               ")")
+qsumperc2 = function(a,b,c) paste0(formatC(a*100, format="f", big.mark=",", digits=1),
+                                  "% (95%CrI: ",
+                                  formatC(b*100, format="f", big.mark=",", digits=1),
+                                  " to ",
+                                  formatC(c*100, format="f", big.mark=",", digits=1),
+                                  ")")
+qsumperc2alt = function(a,b,c) paste0(formatC(a*100, format="f", big.mark=",", digits=1),
+                                   "%, 95%CrI: ",
+                                   formatC(b*100, format="f", big.mark=",", digits=1),
+                                   " to ",
+                                   formatC(c*100, format="f", big.mark=",", digits=1),
+                                   "")
 qsum2 = function(a,b,c) paste0(formatC(a, format="f", big.mark=",", digits=2),
-                              " (",
+                              " (95%CrI: ",
                               formatC(b, format="f", big.mark=",", digits=2),
                               " to ",
                               formatC(c, format="f", big.mark=",", digits=2),
@@ -82,5 +95,6 @@ summ_samples = function(x) c(quantile(x,probs=c(0.5,0.025,0.975)),prob1=mean(x>1
 # aesthetics ----
 theme_set(theme_bw())
 col_labd = "firebrick"
-col_excess1 = "chartreuse3"
+col_excess1 = "chartreuse4"
 col_excess2 = "dodgerblue"
+col_expected = "skyblue"

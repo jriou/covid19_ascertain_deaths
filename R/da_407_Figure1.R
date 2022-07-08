@@ -9,7 +9,7 @@
 
 if(FALSE) {
   
-  samp =  readRDS(file.path(controls$savepoint,"merged_samples.rds"))
+  samp =  readRDS(file.path(controls$savepoint,"merged_samples_rwyear.rds"))
   
   dat <- samp
   
@@ -155,28 +155,14 @@ if(FALSE) {
   cols_exd <- brewer.pal(n = 11, name = "RdBu")
   cols_exd <- c(cols_exd[c(2, 4, 6, 8, 10)])
   
-  ggplot(shp2plot) +
+  maps = ggplot(shp2plot) +
     geom_sf(col = "black", size = 0.1, aes(fill = ex.prob.cat)) + 
-    scale_fill_manual(values=cols_exd[length(cols_exd):1], name = "", drop=FALSE) +
-    facet_wrap(vars(phase), ncol = 3) + 
+    scale_fill_manual(values=cols_exd[length(cols_exd):1], name = "Probability of positive excess mortality: ", drop=FALSE) +
+    facet_wrap(vars(phase), ncol = 4) + 
     theme_bw() +
-    theme(text = element_text(size=8), 
-          plot.title = element_text(face = "bold"),
-          axis.text.x=element_blank(), 
-          axis.text.y=element_blank(),
-          axis.ticks.x=element_blank(),
-          legend.key =
-            element_rect(fill = 'white', color = "white", size = 0.1),
-          legend.text = element_text(size = 7),
-          legend.box.background = element_rect(colour = "grey"), 
-          legend.background = element_blank(), 
-          legend.spacing.y = unit(.10, "mm"), 
-          legend.spacing.x = unit(0, "mm"), 
-          legend.key.height = unit(0.3, "cm"),
-          legend.key.width = unit(0.2, "cm"), 
-          legend.position="bottom",
-          plot.margin = margin(0, 0, 0, 0, "cm")) -> maps
-  
+    theme(legend.position="bottom",
+          axis.text=element_blank(),
+          axis.ticks = element_blank())
   
   png(paste0(controls$savepoint,"/Fig1.png"), width = 16, height = 16, res = 300, units = "cm")
   plot_grid(gPlot, maps, labels = "AUTO", ncol = 1, rel_widths = c(1, 2))

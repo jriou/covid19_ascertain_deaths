@@ -10,6 +10,7 @@ da_201_summarise_by <- function(dat,by) {
     dplyr::summarise(deaths=sum(deaths),
                      exp_deaths=sum(exp_deaths),
                      excess=sum(excess),
+                     rel_excess=if_else(exp_deaths>0,excess/exp_deaths,0),
                      labo_deaths=sum(labo_deaths),
                      .groups="drop_last") %>%
     dplyr::summarise(exp_deaths_med=median(exp_deaths),
@@ -18,6 +19,10 @@ da_201_summarise_by <- function(dat,by) {
                      excess_med=median(excess),
                      excess_lob=quantile(excess,0.025),
                      excess_upb=quantile(excess,0.975),
+                     rel_excess_med=median(rel_excess),
+                     rel_excess_lob=quantile(rel_excess,0.025),
+                     rel_excess_upb=quantile(rel_excess,0.975),
+                     prob_excess=mean(excess>0),
                      metrics_prob_above=mean(excess>labo_deaths),
                      labo_deaths=unique(labo_deaths),
                      deaths=unique(deaths),
