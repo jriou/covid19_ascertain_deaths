@@ -29,13 +29,13 @@ da_303_summary_plot_by <- function(dat) {
     geom_label(data=date_phases3,aes(x=start_date+(end_date-start_date)/2,y=lim*1.15,label=phase),size=2.5,colour="black") +
     geom_point(data=date_phases3,aes(x=start_date+(end_date-start_date)/2,y=-lim*1.15),colour="transparent") +
     labs(x=NULL,y="Weekly count") +
-    scale_x_date(date_labels = "%e %b\n%Y",
+    scale_x_date(date_labels = "%e %b %Y",
                  breaks=c(date_phases2$start_date,max(date_phases2$end_date)),
                  minor_breaks = NULL,
                  expand=expansion(add=c(4,10))) +
     scale_y_continuous(expand=expansion(mult=c(0.1,0.08))) + 
     scale_fill_identity(name = NULL, guide = 'legend', labels = c('Absolute excess mortality')) +
-    scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed SARS-CoV-2-related deaths") +
+    scale_colour_manual(name = NULL, values =c("col"=col_labd), labels = "Laboratory-confirmed COVID-19-related deaths") +
     facet_wrap(~age_group,scales="free",ncol=2)+
     theme(plot.margin = unit(c(3,3,3,3), "mm"),
           legend.position = c(.75,.15),
@@ -43,7 +43,7 @@ da_303_summary_plot_by <- function(dat) {
           legend.text=element_text(size=7.5),
           legend.key.height = unit(0,"mm"),
           legend.background = element_blank(),
-          axis.text.x=element_text(angle=90,hjust=.5,vjust=0.5),
+          axis.text.x=element_text(angle=45,hjust=1,vjust=1),
           axis.title=element_text(size=9))
   g
   return(g)

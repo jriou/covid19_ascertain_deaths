@@ -145,6 +145,7 @@ if(controls$source) { # ignored upon sourcing
   # Block 8: load outputs ----
   if(controls$get_outputs) {
     # load summaries
+    merg = readRDS(file.path(controls$savepoint,"merged_samples.rds"))
     load(file.path(controls$savepoint,"summ.Rdata"))
     load(file.path(controls$savepoint,"summ_bma.Rdata"))
   }

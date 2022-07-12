@@ -28,7 +28,7 @@ da_409_figure1 = function() {
     geom_label(data=date_phases3,aes(x=start_date+(end_date-start_date)/2,y=lim*1.15,label=phase),size=1.8,colour="black") +
     labs(x=NULL,y="Weekly deaths") +
     scale_x_date(date_labels = "%b %e %Y",
-                 breaks=c(date_phases3$start_date,max(date_phases2$end_date)),
+                 breaks=c(date_phases2$start_date,max(date_phases2$end_date)),
                  minor_breaks = NULL,
                  expand=expansion(add=c(4,10))) +
     scale_y_continuous(expand=expansion(mult=c(0,.07))) +
@@ -40,7 +40,7 @@ da_409_figure1 = function() {
           legend.key.height = unit(0,"mm"),
           legend.background = element_blank(),
           legend.margin = margin(0,0,0,0),
-          axis.text.x=element_text(angle=90,hjust=.5,vjust=0.5),
+          axis.text.x=element_text(angle=45,hjust=1,vjust=1),
           axis.title=element_text(size=9))
   
   
