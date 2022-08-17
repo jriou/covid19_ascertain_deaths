@@ -10,6 +10,7 @@ da_202_summarise_by_corr <- function(dat,by) {
     dplyr::summarise(deaths=sum(deaths),
                      corr_exp_deaths=sum(corr_exp_deaths),
                      corr_excess=sum(corr_excess),
+                     corr_rel_excess=if_else(corr_exp_deaths>0,corr_excess/corr_exp_deaths,0),
                      labo_deaths=sum(labo_deaths),
                      .groups="drop_last") %>%
     dplyr::summarise(corr_exp_deaths_med=median(corr_exp_deaths),
@@ -18,6 +19,9 @@ da_202_summarise_by_corr <- function(dat,by) {
                      corr_excess_med=median(corr_excess),
                      corr_excess_lob=quantile(corr_excess,0.025),
                      corr_excess_upb=quantile(corr_excess,0.975),
+                     corr_rel_excess_med=median(corr_rel_excess),
+                     corr_rel_excess_lob=quantile(corr_rel_excess,0.025),
+                     corr_rel_excess_upb=quantile(corr_rel_excess,0.975),
                      metrics_prob_above=mean(corr_excess>labo_deaths),
                      labo_deaths=unique(labo_deaths),
                      deaths=unique(deaths),
