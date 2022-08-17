@@ -2,10 +2,10 @@
 title: Direct and indirect effects of the COVID-19 pandemic on mortality in Switzerland, a population study
 date: "`r format(Sys.time(), 'Report generated on Date: %Y-%m-%d Time: %H:%M')`"
 output:
+  word_document: default
   html_document:
     theme: journal
     code_folding: hide
-  word_document: default
 subtitle: Julien Riou (1,2,*), Anthony Hauser (1,2), Anna Fesser (2), Christian L. Althaus (1), Matthias Egger (1,3,4), Garyfallos Konstantinoudis (5) ^[(1) Institute of Social and Preventive Medicine, University of Bern, Switzerland. (2) Federal Office of Public Health, Switzerland. (3) Population Health Sciences, Bristol Medical School, University of Bristol, Bristol, UK. (4) Centre for Infectious Disease Epidemiology and Research, University of Cape Town, Cape Town, South Africa. (5) MRC Centre for Environment and Health, Department of Epidemiology and Biostatistics, School of Public Health,  Imperial College London, London, UK. [*julien.riou@ispm.unibe.ch]
 bibliography: bibliography.bib
 csl: ieee.csl
