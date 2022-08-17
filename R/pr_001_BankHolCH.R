@@ -1,18 +1,31 @@
-#:::::::::::::::::::::::::::::
-# Project: death_ascertainment
-# description: Get public holidays in Switzerland
-#:::::::::::::::::::::::::::::
 
 
-years <- 2009:2022
+
+# Created 28.04.2021
+
+# Get public holidays in Switzerland
+
+#####################################################################################
+
+
+# setwd
+# make sure the directory has the following folders: data, and savepoint
+
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+
+years <- 2010:2022
 pathURL <- paste0("https://date.nager.at/api/v2/publicholidays/", years, "/CH")
 
+
 gatBankHol <- function(X){
+  
   bankHolidaysCH <- fromJSON(X)
   
   bankHolidaysCH$counties[sapply(bankHolidaysCH$counties, is.null)] <- "CH"
   
-  bankHolidaysCH %>% dplyr::select(date, counties) -> bankHolidaysCH
+  bankHolidaysCH %>% select(date, counties) -> bankHolidaysCH
   
   N <- nrow(bankHolidaysCH)
   max.cantons <- max(sapply(bankHolidaysCH$counties, length))
@@ -39,11 +52,14 @@ gatBankHol <- function(X){
 
 lapply(pathURL, gatBankHol) -> holCH
 holCH <- do.call(rbind, holCH)
-saveRDS(holCH, file = file.path("data","holCH09_22.rds"))
+
+saveRDS(holCH, file = "data/holCH10_22")
 
 
 
 
 
-
-
+#####################################################################################
+#####################################################################################
+#####################################################################################
+#####################################################################################

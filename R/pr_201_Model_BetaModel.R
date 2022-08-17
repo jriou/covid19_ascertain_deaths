@@ -98,6 +98,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
     # run the MCMC
     sampl <- runMCMC(cMCMC, niter = ni , nburnin = nb, thin = nt, samples = TRUE, summary = FALSE)
     return(sampl)
+    gc()
   } 
   
   
@@ -124,6 +125,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
         cond <- sum(u[1:N])
         one ~ dconstraint(cond = 0)
         sd.over ~ dexp(rate = rate.param)
+        u.conv <- c(u[1], u[3], u[50]) 
       }else{
       }
       
@@ -145,7 +147,6 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
         mean.beta[2] ~ T(dnorm(0, sd = 5), 0, b)
         sd.beta[2] ~ dexp(rate = 0.1)
       }
-      
     }
   )
   
@@ -203,7 +204,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
     Tot <- FALSE
     
     if(overdispersion == TRUE){
-      params <- c("beta", "mean.beta", "sd.beta", "u", "sd.over")
+      params <- c("beta", "mean.beta", "sd.beta", "u.conv", "sd.over")
       ov <- "_OV"
       rateparam <- paste0("_", select.rate.param)
     }else{
@@ -239,7 +240,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
     if(overdispersion == TRUE){
       ov <- "_OV"
       rateparam <- paste0("_", select.rate.param)
-      params <- c("beta", "u", "sd.over")
+      params <- c("beta", "u.conv", "sd.over")
     }else{
       params <- c("beta")
       ov <- ""
@@ -253,9 +254,9 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   cl <- makeCluster(no_cores) 
   
   if(overdispersion == TRUE){
-    clusterExport(cl, c("dat_fin", "mod", "Tot", "params", "ran.sam.it", "select.rate.param","overdispersion"))
+    clusterExport(cl, c("dat_fin", "mod", "Tot", "params", "ran.sam.it", "select.rate.param","overdispersion"), envir=environment())
   }else{
-    clusterExport(cl, c("dat_fin", "mod", "Tot", "params", "ran.sam.it"))
+    clusterExport(cl, c("dat_fin", "mod", "Tot", "params", "ran.sam.it"), envir=environment())
   }
   
   clusterEvalQ(cl, {
@@ -266,7 +267,7 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   
   cat("Launch model on cluster")
   
-  result <- parLapply(cl, 1:200, nimble_sam)  
+  result <- parLapply(cl, 1:3, nimble_sam)  
   stopCluster(cl) 
   t_1 <- Sys.time()
   t_1 - t_0
@@ -274,9 +275,10 @@ pr_201_Model_BetaModel = function(model_by, overdispersion, correction_expected)
   saveRDS(result, file = paste0(controls$savepoint,"SamplesBMAtrun_", model_by, "_", nam, cor.nam, ov, rateparam))
 }
 
+
+
+
 # model_by = NULL, takes ~20min
 # model_by = age_group, takes ~1.5h
 # model_by = canton, takes ~36h
 # model_by = phase, takes ~30min
-
-

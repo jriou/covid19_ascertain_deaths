@@ -14,7 +14,7 @@ da_101_clean_samples <- function(dat) {
                   age_group=factor(age,
                                    levels=c("less40","40-59","60-69","70-79","80plus"),
                                    labels=age_classes),
-                  canton=as.character(canton),
+                  canton=as.character(canton_name),
                   canton=if_else(canton_id=="CH033","AG",canton)) %>%
     dplyr::filter(canton != "FL") %>%
     dplyr::ungroup()

@@ -20,7 +20,7 @@ colnames(pop)[2] <- "canton"
 pop$Population.type <- NULL
 
 
-pop %>% rowwise() %>% mutate(X0_39 = sum(c_across(X0.Jahre:X39.Jahre), na.rm = T), 
+pop %>% rowwise() %>% dplyr::mutate(X0_39 = sum(c_across(X0.Jahre:X39.Jahre), na.rm = T), 
                              X40_59 = sum(c_across(X40.Jahre:X59.Jahre), na.rm = T), 
                              X60_69 = sum(c_across(X60.Jahre:X69.Jahre), na.rm = T), 
                              X70_79 = sum(c_across(X70.Jahre:X79.Jahre), na.rm = T), 
@@ -35,7 +35,7 @@ pop$Geschlecht[pop$Geschlecht %in% "Frau"] <- "females"
 head(pop)
 
 # lets exclude 2020 since its the first year of covid and the pop of CH is calculated based on 31 Dec
-pop %>% rename(year = Jahr, sex = Geschlecht) %>% filter(year<2020) -> pop
+pop %>% dplyr::rename(year = Jahr, sex = Geschlecht) %>% filter(year<2020) -> pop
 pop <- gather(pop, age, population, X0_39:X80plus, factor_key=TRUE)
 head(pop)
 

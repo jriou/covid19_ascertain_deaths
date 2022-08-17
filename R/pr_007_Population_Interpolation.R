@@ -3,13 +3,14 @@
 # description: Population per week
 #:::::::::::::::::::::::::::::
 
+setwd("E:/Postdoc Imperial/Projects/COVID19 Greece/covid19_ascertain_deaths/")
 
-pop <- readRDS(file.path(controls$savepoint,"pop2010_2020.rds"))
-pop %>% filter(year >= 2014, year < 2020) -> pop
-pop$year <- pop$year + 1
+pop <- readRDS(file.path("data","pop2010_2020"))
+pop %>% filter(year < 2020) -> pop
+pop$year <- pop$year + 1 # this is because the swiss files give the population for the 31 Dec of a year
 
 
-EUROSTAT_ISO <- readRDS("data/EUROSTAT_ISO")
+EUROSTAT_ISO <- readRDS("data/EUROSTAT_ISO_2")
 
 
 # the population file should have the following format:
@@ -54,7 +55,7 @@ pop_weekly <- left_join(pop_weekly, EUROSTAT_ISO[,c("EURO_LABEL", "year", "day2p
 
 # Add the predictions
 
-pred2021_23 <- readRDS(file.path(controls$savepoint,"pois.samples.population.OV.INT.rds"))
+pred2021_23 <- readRDS(file.path("savepoint","pois.samples.population.OV.INT"))
 
 
 # since with CH is the 31st of Dec of each year, I will make this 1st Jan of the next year
@@ -81,7 +82,7 @@ pop_store <- pop
 pop_weekly_store <- pop_weekly
 listpop <- list()
 
-
+t_0 <- Sys.time()
 
 for(i in 1:200){
   
@@ -99,7 +100,7 @@ for(i in 1:200){
   pop_loop$year <- as.character(pop_loop$year)
   pop_loop$population <- pred2021_23[,4+i]
   pop <- rbind(pop, pop_loop)
-  
+  table(pop$year)
   pop_weekly$age <- as.character(pop_weekly$age)
   pop$ageg <- as.character(pop$ageg)
   
@@ -135,6 +136,9 @@ for(i in 1:200){
   listpop[[i]] <- pop_weekly
 }
 
+t_1 <- Sys.time()
+t_1 - t_0 # 8 minutes
 
-saveRDS(listpop, file = file.path(controls$savepoint,"popfinCH_list.rds"))
+saveRDS(listpop, file = file.path("data","popfinCH_list_10_22"))
+
 
