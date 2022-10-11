@@ -18,16 +18,15 @@ da_408_format_table_by_phase <- function(summaries) {
       rel_excess=qsumperc(rel_excess_med,rel_excess_lob,rel_excess_upb)) %>% 
     left_join(date_phases2,by = "phase") %>% 
     mutate(dates=paste0(format(start_date,"%b %-d, %Y")," to ",format(end_date,"%b %-d, %Y"))) %>% 
-    dplyr::select(phase,dates,exp_deaths,observed_deaths,excess,rel_excess,laboratory)
+    dplyr::select(phase,exp_deaths,observed_deaths,excess,rel_excess,laboratory)
   
   
   names(tab) = c(
-    "Epidemic phase",
-    "Dates",
-    "Expected all-cause deaths (95% credible interval)",
-    "Observed all-cause deaths",
-    "Excess all-cause deaths (95% credible interval)",
-    "Relative excess all-cause deaths (95% credible interval)",
+    "Phase*",
+    "Expected",
+    "Observed",
+    "Excess",
+    "Relative excess",
     "Laboratory-confirmed COVID-19 deaths")
   
   return(tab)

@@ -30,6 +30,7 @@ library(fastDummies)
 library(cowplot)
 library(RColorBrewer)
 library(flextable)
+library(scales)
 
 # set paths ----
 path_script = "R/"
@@ -92,9 +93,20 @@ qsum2 = function(a,b,c) paste0(formatC(a, format="f", big.mark=",", digits=2),
                               ")")
 summ_samples = function(x) c(quantile(x,probs=c(0.5,0.025,0.975)),prob1=mean(x>1))
 
+
+
 # aesthetics ----
 theme_set(theme_bw())
 col_labd = "firebrick"
 col_excess1 = "chartreuse4"
 col_excess2 = "dodgerblue"
 col_expected = "skyblue"
+
+
+reverse2_trans <- function() {
+  scales::trans_new(
+    "reverse2",
+    function(x) -1 * as.numeric(x), # Force values to be numeric for Date objects
+    function(x) -1 * as.numeric(x)
+  )
+}
