@@ -23,13 +23,14 @@ table1 = da_408_format_table_by_phase(summ_phase_temp)
 
 # Abstract
 
-The direct and indirect impact of the COVID-19 pandemic on population-level mortality is of concern to public health but challenging to quantify. Using data for 2010-2019, we applied Bayesian models to predict the expected number of deaths in Switzerland and compared them with laboratory-confirmed COVID-19 deaths from February 2020 to April 2022 (study period). We estimated that COVID-19-related mortality was underestimated by a factor of 0.72 (95% credible interval [CrI]: 0.46 to 0.78). After accounting for COVID-19 deaths, the observed mortality was -3% (95% CrI: -7 to +1) lower than expected. The deficit in mortality was concentrated in age groups 40-59 (-12%, 95%CrI: -19 to -4) and 60-69 (-8%, 95%CrI: -16 to -3). Although COVID-19 control measures may have negative effects, after subtracting COVID-19 deaths, there were fewer deaths in Switzerland during the pandemic than expected, suggesting that any negative effects of control measures were offset by the positive effects. These results have important implications for the ongoing debate about the appropriateness of COVID-19 control measures.
+The direct and indirect impact of the COVID-19 pandemic on population-level mortality is of concern to public health but challenging to quantify. Using data for 2011-2019, we applied Bayesian models to predict the expected number of deaths in Switzerland and compared them with laboratory-confirmed COVID-19 deaths from February 2020 to April 2022 (study period). We estimated that COVID-19-related mortality was underestimated by a factor of 0.72 (95% credible interval [CrI]: 0.65 to 0.83). After accounting for COVID-19 deaths, the observed mortality was `r da_405_format_beta(summ_regbma,select_group="Overall",select_beta="beta_2",trans="1-",digits=0)` lower than expected. The deficit in mortality was concentrated in age groups 40-59 (`r da_405_format_beta(summ_regbma,select_group="40-59",select_beta="beta_2",trans="1-",digits=0)`) and 60-69 (`r da_405_format_beta(summ_regbma,select_group="60-69",select_beta="beta_2",trans="1-",digits=0)`). Although COVID-19 control measures may have negative effects, after subtracting COVID-19 deaths there were fewer deaths in Switzerland during the pandemic than expected, suggesting that any negative effects of control measures were offset by the positive effects. These results have important implications for the ongoing debate about the appropriateness of COVID-19 control measures.
 
 
 # Introduction
 
 The COVID-19 pandemic has affected mortality globally through direct and indirect effects. Infection with SARS-CoV-2 directly causes death in a small proportion of infected people, with variations in the infection-fatality ratio (IFR) depending on age [@hauser2020estimation], socio-economic position [@riou2021socioeconomic], vaccination status [@watson2022global], intensive care unit capacity [@anderegg2022survival] and several other characteristics of individuals or communities.
-Combined with the high transmissibility of SARS-CoV-2, this has resulted in more than 6.5 million laboratory-confirmed deaths globally as of October 10, 2022 [@Worldometer].
+Deaths directly attributable to SARS-CoV-2 infection can be laboratory-confirmed deaths as well as deaths without a test that were triggered by SARS-CoV-2 (e.g., myocardial infarction or stroke) [@uuskula2022long] [@raisi2022cardiovascular].
+Combined with the high transmissibility of SARS-CoV-2, this has resulted in more than 6.5 million laboratory-confirmed deaths globally as of October 10, 2022 [@Worldometer], likely an underestimate of the true number of deaths directly attributable to SARS-CoV-2 infection.
 The pandemic has also caused major disruptions in many aspects of social and economic life and may thus have indirectly increased or reduced mortality.
 Non-pharmaceutical interventions (NPIs) may lead to delays or avoidance of medical care [@riera2021delays] [@czeisler2020delay], increases in substance use and suicidal ideation [@mansfield2021indirect] [@zaami2020new] [@czeisler2021mental] or increases in interpersonal violence [@mazza2020danger].
 Conversely, stay-at-home orders have led to reductions in mobility and traffic [@saladie2020covid] and air pollution levels [@chen2020air].
@@ -50,7 +51,7 @@ Comparisons of excess mortality with laboratory-confirmed deaths have confirmed 
 Still, a common limitation of these studies is the inability to distinguish between the direct and indirect effects of the pandemic on mortality.
 This study attempts to overcome this limitation by jointly studying laboratory-confirmed COVID-19-related deaths and excess mortality. 
 We computed the expected number of all-cause deaths by week, age group and location in Switzerland between February 2020 and April 2022, accounting for the effect of temperature, national holidays, and population changes using a validated statistical approach [@konstantinoudis2022framework]. 
-We then developed a method to separate all-cause mortality into deaths directly attributable to SARS-CoV-2 infection and deaths indirectly attributable to the pandemic as a consequence of all the modifications in health and society associated with the circulation of SARS-CoV-2 in Switzerland.
+We then developed a method to partition all-cause mortality into deaths directly attributable to SARS-CoV-2 infection and deaths indirectly attributable to the pandemic as a result of all the changes in health, health care, and living or working conditions associated with the SARS-CoV-2 pandemic in Switzerland.
 We could thus examine the completeness of ascertainment of COVID-19-related deaths and the indirect effects of the pandemic on all-cause mortality in Switzerland.
 
 
@@ -80,11 +81,14 @@ The relative deficit in all-cause deaths ($\beta_2$) was more pronounced in age 
 The deficit was also concentrated in phases 1, 3 and 4.
 Estimates of $\beta_1$ and $\beta_2$  across administrative regions show generally homogeneous results for the whole of Switzerland (Supplementary Figure S2 and Table S2).
 
+We conducted a sensitivity analysis where the population was corrected by excess mortality.
+This resulted in higher estimates of excess mortality, with about 1,000 additional excess deaths. 
+This however had very little effect on the estimates of $\beta_1$ and $\beta_2$ (Supplementary text S1.4).
 
 # Discussion
 
 We examined the patterns of all-cause mortality in Switzerland from the diagnosis of the first COVID-19 case at the end of February 2020 to spring 2022. 
-We compared the excess mortality with laboratory-confirmed COVID-19-related deaths and separated excess mortality into the excess directly attributable to COVID-19 and excess or under mortality indirectly attributable to the pandemic. 
+We compared the excess mortality with laboratory-confirmed COVID-19-related deaths and partitioned excess mortality into the excess directly attributable to COVID-19 and excess or under mortality indirectly attributable to the pandemic. 
 We found that the estimated number of deaths directly caused by COVID-19 was about 1.4 times higher than the number of laboratory-confirmed deaths. 
 In other words, only about 70% of COVID-19-related deaths were ascertained. 
 Overall, COVID-19 was directly responsible for an estimated 18,000 deaths during the study period, during which only around 13,000 laboratory-confirmed COVID-19-related deaths were reported. 
@@ -93,24 +97,28 @@ Finally, the pandemic may have had an indirect beneficial effect on mortality co
 Our study has several strengths.
 Detailed data on the population structure, mortality, weather, and national holidays from the ten years before the COVID-19 pandemic allowed us to estimate what mortality would have been 2020 to 2022 had the pandemic not occurred. 
 Estimation of excess all-cause mortality during the pandemic period by time, space and age thus became possible. 
-Our method has been thoroughly validated (Supplementary Text S1) and accounts for the most important determinants of all-cause mortality.
-In line with previous studies we used temperature, national holidays and spatio-temporal effects to predict expected deaths [@konstantinoudis2022regional] [@beaney2020excess]. 
-Using the above has previously resulted in models with high predictive ability. 
+Our method has been thoroughly validated (Supplementary Text S1) and accounts for the most important determinants of changes in all-cause mortality. 
+In line with previous studies, we used temperature, national holidays and spatio-temporal effects to predict expected deaths [@konstantinoudis2022regional][@beaney2020excess].
+Including these factors resulted in models with high predictive ability.
 It correctly handles uncertainty from the different data sources and propagates it to the final estimates.
 The approach may be used in any setting with reliable reports of all-cause mortality and laboratory-confirmed deaths. 
 Further, we developed a novel statistical method to differentiate between deaths directly attributable to SARS-CoV-2 infections and deaths caused or prevented indirectly by the pandemic. 
+
 Our study also has several limitations. 
-Temperature, holidays and population might not be the most important determinants of all-cause mortality. 
-The modeling framework we developed also accounts for factors that vary in space and in time (both in seasonal and long term means), resulting in a model with high predictive ability. 
-As for other works involving excess mortality, we assume that the only difference between the periods 2015-2019 and 2020-2022 besides these covariates is the presence or the absence of the COVID-19 pandemic, so that any difference in mortality between these two periods that goes beyond random variation will be attributed to the pandemic, either directly or as a consequence of all the modifications in health and society associated with the circulation of SARS-CoV-2 in Switzerland.
-We thus ignored the hypothetical impact on mortality of external factors that would have occurred in 2020-2022 but not in 2015-2019.
-One such example is the extreme heat wave of summer 2022, that is outside of the study period. 
+Temperature, holidays and population are certainly the most important determinants of changes in all-cause mortality, but the modeling framework we developed also accounts for unknown factors that may vary in space and in time (both in the seasonal and long term), resulting in a model with high predictive ability.
+As with other studies of excess mortality [@wang2022estimating] [@whittaker2021under] [@islam2021excess] [@weitkunat2021mortality] [@karlinsky2021tracking] [@staub2022historically] [@konstantinoudis2022regional] [@whoexcess] [@theeconomist] [@heuveline2021covid] [@cronin2021excess], we assume that the only difference between the 2015-2019 and 2020-2022 time periods other than these covariates is the presence or absence of the COVID-19 pandemic. 
+Therefore, any difference in mortality between these two periods beyond random variation is attributed to the pandemic, either directly or as a consequence of changes in health, health care, and living or working conditions associated with the SARS-CoV-2 pandemic in Switzerland. 
+We ignored the potential impact of other factors on mortality that may have occurred in 2020-2022 but not in 2011-2019. 
+One such example is the heat wave in the summer of 2022, which is outside the study period.
+Our modeling framework cannot easily distinguish between between reductions in mortality and mortality displacement between epidemic phases. 
+The standard approach to computing excess mortality ignores the changes in population caused by the excess deaths themselves, resulting in an overestimation of the expected number of deaths towards the end of the study period, and thus an underestimation of excess mortality. 
+A sensitivity analysis correcting for this issue resulted in an additional 1,000 excess deaths over the full period, but this did not impact our estimates of $\beta_1$ and $\beta_2$.
 Information about the cause of death was not available for the full study period but would have helped understand the mechanisms of the indirect beneficial effect of the COVID-19 pandemic on mortality. 
-With our framework, it is difficult to differentiate between reductions in mortality and mortality displacement, and it is possible that mortality levels were overestimated during later periods.
-We also only consider the short-term effects of COVID-19 on mortality, while longer-term effects might exist through different mechanisms (e.g. "long COVID" or societal changes).
-We assumed deaths with a positive SARS-CoV-2 test were caused by COVID-19, although the infection could only act as a trigger in some cases. 
-However, incidental SARS-CoV-2 infections would only concern a small proportion of deaths with laboratory-confirmed infection, equivalent to the prevalence in the general population [@chadeau2021react].
+We also only considered the short-term effects of COVID-19 on mortality, while SARS-CoV-2 infection may lead to increased mortality from cardiovascular, cancer or respiratory system cause of death in the following 12 months [@uuskula2022long].
+We assumed deaths with a positive SARS-CoV-2 test were caused by COVID-19, although the infection could be incidental in some cases (the median delay from test to deaths was 10 days, interquartile range 6 to 15). 
+Such misclassification would only concern a small proportion of deaths with laboratory-confirmed infection, as was shown in cause-of-death data [@fso2022causes]. 
 Autopsies of patients dying in hospital following a positive SARS-CoV-2 test also suggest that during the study period, causes of death were generally directly related to COVID-19 [@elezkurtaj2021causes].
+Still, this potential bias may lead to an underestimation of the ascertainment proportion in our analysis.
 Finally, we did not stratify by sex in this study. 
 In a previous analysis, we found only small differences in excess deaths between sexes [@konstantinoudis2022regional].
 
@@ -127,23 +135,25 @@ We found that COVID-19 caused about 1.4 times more deaths than were laboratory-c
 Estimates varied widely between countries. 
 For example, the ratio was 0.57 (0-1.25) for Norway but at 150 (140-162) for Nicaragua [@wang2022estimating]. 
 Differences could be attributable to local healthcare and surveillance systems, testing capacity, and methodological differences in collecting mortality data and estimating excess mortality.
-Recently-published data on causes of deaths in 2020 also confirmed our results [@fso2022causes].
-According to these data, the number of deaths with COVID-19 as a cause was 2,142 from February to May 2020 (24% more than laboratory-confirmed deaths) and 7,746 from September to December 2020 (33% more than laboratory-confirmed deaths).
+Recently-published data on causes of deaths in 2020 and the first half of 2021 provided a partial external validation of our results [@fso2022causes].
+According to these data, the number of deaths with COVID-19 as a cause was 2,142 from February to May 2020 (24% more than laboratory-confirmed deaths) and 10,650 from September 2020 to February 2021 (36% more than laboratory-confirmed deaths).
 We found markedly lower ascertainment during periods of high epidemic activity, suggesting shortcomings in testing, or reporting even in Switzerland, a high-income country.
 Under-ascertainment was concentrated in older age groups, indicating incomplete ascertainment in retirement and nursing homes, in line with other reports [@li2020researchfactors].
-While testing increased over time in Switzerland, the targeting of tests in vulnerable populations may have changed, and the lower ascertainment towards the end of the study period might be explained by reduced testing once vaccines became available.
+During the first epidemic phase, testing capacities were limited which might have affected ascertainment of COVID-19-related deaths. 
+However, $\beta_1$ in epidemic phase 1 did not substantially differ from the overall estimate. 
+While testing increased over time in Switzerland, the targeting of tests in vulnerable populations may have simultaneously decreased, so that the ascertainment of severe forms remained relatively stable in the first 4 phases. 
+The lower ascertainment towards the end of the study period might be explained by reduced testing once vaccines became available.
 
 We found that in Switzerland, the COVID-19 pandemic probably had an indirect beneficial effect on mortality. 
-A potential explanation is mortality displacement or the "harvesting effect", where COVID-19 precipitated deaths that would have occurred anyway soon [@hajat2005mortality] [@kim2022implications] [@toulemon2008mortality] [@schwartz2000harvesting].
-The short period of negative excess mortality observed at the beginning of phase 4, just after the largest epidemic wave, could be explained by this harvesting effect.
-However, this can only be a partial explanation: the deficit of deaths was concentrated in the younger age groups and not in the over 70 years old, where mortality displacement typically occurs.
-Therefore, the mortality deficit is probably due to the pandemic's indirect effects, such as reductions in mobility, road traffic, air pollution and sports activities. 
-The fact that the deficit was more pronounced during phases 1, 3 and 4, when control measures were most stringent (Figure 1C) [@fophmeasures], supports this interpretation. 
+A potential explanation is mortality displacement or the “harvesting effect”, where COVID-19 precipitated deaths that would have occurred anyway [@hajat2005mortality] [@kim2022implications] [@toulemon2008mortality] [@schwartz2000harvesting].
+The short period of negative excess mortality observed at the beginning of phase 4, just after the largest epidemic wave, could be explained by this harvesting effect. However, this can only be a partial explanation: the overall deficit of deaths was concentrated in the younger age groups and not in the over 70 years old, where mortality displacement typically occurs. 
+Therefore, the mortality deficit is probably due to the pandemic’s indirect effects, such as reductions in mobility, road traffic, air pollution and sports activities.
+The fact that the deficit was more pronounced during phases 1, 3 and 4, when control measures were most stringent [@fophmeasures], supports this interpretation. 
 The concentration of the mortality deficit in the younger age groups also argues against an important role of a reduced prevalence of other pathogens. 
 For example, influenza leads to mortality in the older age groups, the lack thereof would therefore be expected to result in a mortality deficit in these age groups. 
-Influenza seasons during 2015-2019 were accounted for by the spatio-temporal component of the model.
+Influenza seasons during 2011-2019 were accounted for by the spatio-temporal component of the model.
 In any case, we find no evidence for an overall detrimental effect of control measures on mortality. 
-However, we cannot exclude harmful effects such as delays or avoidance of medical care [@riera2021delays] [@czeisler2020delay], increases in substance use and suicidal ideation [@zaami2020new] [@czeisler2021mental], increases in interpersonal violence [@mazza2020danger] and other factors related to economically precarious situations.
+However, we cannot exclude harmful effects such as delays or avoidance of medical care [@riera2021delays] [@czeisler2020delay], increases in substance use and suicidal ideation [@zaami2020new] [@czeisler2021mental], increases in interpersonal violence [@mazza2020danger] and other factors related to economically precarious situations (although the increase in unemployment in 2020 was relatively modest due to job retention schemes [@muller2022job] [@fsounemployment]).
 
 Our results are not readily applicable to other countries. Switzerland is a high-income country with a relatively old but healthy population. The stringency of control measures was relatively mild compared to other European countries [@hale2021global].
 While any harmful indirect effects of control measures appear to have been more than compensated in Switzerland, further research is required to quantify indirect effects in other countries. 
@@ -160,40 +170,42 @@ These results have important implications for the ongoing debate about the appro
 
 # Methods
 
-**Data sources.** We retrieved population data in Switzerland for the pre-pandemic years 2010 to 2019 from the *Federal Statistical Office* (FSO).
+**Data sources.** We retrieved population data in Switzerland for the pre-pandemic years 2011 to 2019 from the *Federal Statistical Office* (FSO).
 Data were aggregated by age group (in five groups: 0-39, 40-59, 60-69, 70-79 and 80 and older), sex (two groups) and administrative region (26 cantons).
 Data on all-cause deaths were also obtained from the FSO.
-These consisted of counts of deaths from any cause by age, sex and canton for each week using the date of death from 2010 to 2019, and afterwards for each week up to `r format(max(summ_week_temp_corr$week+6),"%B %-d, %Y")`.
+These consisted of counts of deaths from any cause by age, sex and canton for each week using the date of death from 2011 to 2019, and afterwards for each week up to `r format(max(summ_week_temp_corr$week+6),"%B %-d, %Y")`.
 We used data on ambient temperature from the European Centre for Medium-Range Weather Forecasts Reanalysis version 5 (ERA5) reanalysis data set [@hersbach2020era5] and on national holidays [@nager].
-Daily mean ambient temperature between 2010 and 2022 at 0.25°x0.25° resolution was aggregated by taking means per week and canton. 
+Daily mean ambient temperature between 2011 and 2022 at 0.25°x0.25° resolution was aggregated by taking means per week and canton. 
 Holidays were defined weekly for each canton (1 if there was at least one cantonal holiday, 0 otherwise).
 
 The reporting of laboratory-confirmed COVID-19-related deaths has been mandatory in Switzerland since February 2020.
 The records are kept at the *Federal Office of Public Health* (FOPH), and are available online. 
 Data include age, sex, canton of residence, and the date and type of the positive SARS-CoV-2 test.
-Dates were grouped into seven epidemic phases by the FOPH using the lowest points in reported cases: February 24, 2020 to June 7, 2020 (phase 1); June 8, 2020 to September 27, 2020 (phase 2); September 28, 2020 to February 14, 2021 (phase 3); February 15, 2021 to June 20, 2021 (phase 4); June 21, 2021 to October 10, 2021 (phase 5); October 11, 2021 to December 19, 2021 (phase 6) and December 20, 2021 to April 3, 2022 (phase 7).
+Dates were grouped into seven epidemic phases by the FOPH using the lowest counts of reported cases: February 24, 2020 to June 7, 2020 (phase 1); June 8, 2020 to September 27, 2020 (phase 2); September 28, 2020 to February 14, 2021 (phase 3); February 15, 2021 to June 20, 2021 (phase 4); June 21, 2021 to October 10, 2021 (phase 5); October 11, 2021 to December 19, 2021 (phase 6) and December 20, 2021 to April 3, 2022 (phase 7).
 
 **Population trends model.** We used population size on December 31, 2010 to 2019 by age group, sex and canton to predict population sizes in each stratum and week of the entire study period (January 1, 2020 to `r format(max(summ_week_temp_corr$week+6),"%B %-d, %Y")`) in a two-step procedure.
-First, we fitted a Poisson regression model to population data from 2010 to 2019.
+First, we fitted a Poisson regression model to population data from 2011 to 2019.
 This model included a linear yearly trend, a fixed effect by sex, and independent random effects by week (for seasonality), age group and canton.
 We compared different models using higher interactions and yearly linear trends that vary by space, age and sex.
 Model comparison using a cross-validation scheme excluding the last three years of available data (2017-2019) determined that the best model included all possible two-way interactions between age, canton, and week, and an overdispersion parameter.
 We obtained posterior distributions of the population in each stratum for December 31 2020, 2021 and 2022, under the counterfactual scenario that the pandemic did not occur.
 In a second step, we used linear interpolation to obtain weekly population size (estimates, with uncertainty). 
-Supplementary Text S1 provides further details.
+Supplementary Text S1.1 provides further details.
 
 **Expected deaths model.** We estimated the expected number of all-cause deaths for each week between `r format(min(summ_week_temp_corr$week),"%B %-d, %Y")`, the day of the first confirmed COVID-19 case in Switzerland, and `r format(max(summ_week_temp_corr$week+6),"%B %-d, %Y")` by age, sex and canton of residence using the historical data (2011 to 2019) and expanding a previously proposed model [@konstantinoudis2022regional]. 
 We used Bayesian spatio-temporal models accounting for population trends and including covariates related to temperature and national holidays. 
 To account for uncertainty in population estimates, we applied the model multiple times over the samples of the posterior distributions of the population predictions. 
 Since the effect of temperature on all-cause mortality is expected to be U-shaped [@gasparrini2015mortality], we used a random walk of order 2 to allow for a flexible fit. We accounted for seasonality using a random walk of order 1 at the weekly level, and for exceptional events using week-level independent random effects. We accounted for long-term trends with a linear slope at the yearly level, and for spatial autocorrelation using conditional autoregressive priors. We modelled spatial autocorrelation using an extension of the Besag-York-Mollié model, allowing for a mixing parameter measuring the proportion of the marginal variance explained by the spatial autocorrelation term [@riebler2016intuitive] [@besag1991bayesian].
-The model has been internally validated and found to be unbiased and to have a high predictive accuracy. 
-Correlation is smaller in the younger age groups, as expected as Pearson correlation is not suitable for small counts, but coverage and bias show very good predictive accuracy.
+The model has been internally validated and found to be unbiased and to have high predictive accuracy. 
+The correlation was smaller in the younger age groups, as expected as Pearson correlation is not suitable for small counts, but coverage and bias indicate very good predictive accuracy.
 We used the fitted model to obtain posterior distributions of the expected number of all-cause deaths by age group, sex and canton in each week between `r format(min(summ_week_temp_corr$week),"%B %-d, %Y")` and `r format(max(summ_week_temp_corr$week+6),"%B %-d, %Y")`.
 Estimates of excess mortality (with uncertainty) were then obtained by subtracting the expected (across the posterior samples) from the observed all-cause deaths in each stratum.
-Supplementary text S1 provides further details and the results of the internal cross validation. 
+Supplementary text S1.2 provides further details and the results of the internal cross validation. 
+One limitation of the proposed approach is that it ignores the changes in population caused by the excess deaths themselves, leading to an overestimation of population and expected deaths, and thus an underestimation of excess towards the end of the study period.
+We corrected for this bias in a sensitivity analysis (Supplementary text S1.4).
 
 **Separation model.** We first studied the alignment between excess mortality and laboratory-confirmed COVID-19-related deaths using Pearson's correlation coefficient (applied across the posterior samples of excess mortality to propagate uncertainty).
-We then developed a method to separate the number of all-cause deaths observed in the pandemic period based on 1) the number of laboratory-confirmed COVID-19-related deaths and 2) the number of expected deaths given historical trends.
+We then developed a method to partition the number of all-cause deaths observed in the pandemic period based on 1) the number of laboratory-confirmed COVID-19-related deaths and 2) the number of expected deaths given historical trends.
 We included multiplicative parameters to measure the respective contributions of these two quantities.
 We used a Poisson regression model with an identity link and no intercept term of the form: 
 $$
@@ -211,7 +223,7 @@ We expect $\beta_2=1$ when the net effect of the pandemic-related behavioral, so
 The estimate of $\beta_2$ can thus be interpreted as a measure of the indirect effect of the pandemic on mortality.
 If $\beta_2<1$, then there were fewer all-cause deaths than expected after removing the direct effect of COVID-19, which could imply an indirect protective effect of all changes and control measures associated with the pandemic.
 Estimates of $\beta_1$ and $\beta_2$ thus provide a way to understand the interplay between laboratory-confirmed COVID-19-related deaths and excess all-cause deaths, and allow to differentiate between direct and indirect consequences of the COVID-19 pandemic on mortality.
-Supplementary Text S1 provides further details on model specification and choices of the priors.
+Supplementary Text S1.3 provides further details on model specification and choices of the priors.
 
 We extended the model presented above to examine these associations by phase (from 1 to 7 as defined by the FOPH), by age group (0-39, 40-59, 60-69, 70-79 and 80+ years old), and by area (26 cantons).
 To this end, we introduced multiple $\beta_1$ and $\beta_2$ for each phase, age group or area separately, with the additional constraint of a multilevel structure allowing a smoothing towards the global mean of the estimator [@gelman1995bayesian].

@@ -117,9 +117,34 @@ da_409_figure1 = function() {
                        breaks=c(date_phases2$start_date,max(date_phases2$end_date)),
                        labels=format(c(date_phases2$start_date,max(date_phases2$end_date)),"%b %e %Y")) +
     coord_flip(ylim=c(10,90))
+  gstring2 = stringency %>%
+    dplyr::filter(location=="Switzerland",date<=date_max) %>% 
+    dplyr::select(location,date,stringency_index) %>%
+    ggplot() +
+    geom_step(aes(x=date,y=stringency_index),colour="orange") +
+    geom_label(data=date_phases2,aes(x=start_date+(end_date-start_date)/2,y=85,label=phase),size=1.8,colour="black") +
+    labs(x=NULL,y="Oxford stringency index") +
+    scale_x_date(date_labels = "%b %e %Y",
+                 breaks=c(date_phases2$start_date,max(date_phases2$end_date)),
+                 minor_breaks = NULL,
+                 expand=expansion(add=c(4,10))) +
+    theme(legend.position = c(.5,.15),
+          legend.spacing = unit(0,"mm"),
+          legend.text=element_text(size=7.5),
+          legend.key.height = unit(0,"mm"),
+          legend.background = element_blank(),
+          legend.margin = margin(0,0,0,0),
+          axis.text.x=element_text(angle=45,hjust=1,vjust=1),
+          axis.title=element_text(size=9))
   
   # join
   # plot_grid(g_ts,g_map,ncol=1,labels=LETTERS,rel_heights = c(1.3,1))
-  g1 = cowplot::plot_grid(gabs,grel2a,ncol=1,labels=LETTERS,rel_heights = c(1,1),align="v",axis = "l")
-  plot_grid(g1,gstring,rel_widths = c(3,1),labels=c("","C"))
+  # g1 = cowplot::plot_grid(gabs,grel2a,ncol=1,labels=LETTERS,rel_heights = c(1,1),align="v",axis = "l")
+  # plot_grid(g1,gstring,rel_widths = c(3,1),labels=c("","C"))
+  plot_grid(
+    gabs,
+    plot_grid(grel2a,gstring2,rel_widths=c(2.5,1),labels=c("B","C")),
+    ncol=1,
+    labels=c("A","")
+  )
 }

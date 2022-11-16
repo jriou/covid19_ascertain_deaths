@@ -60,6 +60,9 @@ if(controls$source) { # ignored upon sourcing
     summ_canton_temp = da_201_summarise_by(merg,by=c("canton"))
     summ_phase_canton_temp = da_201_summarise_by(merg,by=c("phase","canton"))
     summ_week_age_temp = da_201_summarise_by(merg,by=c("phase","week","age_group"))
+    
+    # summarize excess after correcting population for deaths
+    summ_all_temp_corr = da_202_summarise_by_corr(merg,by=NULL)
 
     # correlation between excess and lab deaths
     summ_pearson_week = da_203_pearson(merg,by="week")
@@ -129,7 +132,7 @@ if(controls$source) { # ignored upon sourcing
     source("R/pr_303_Checks_CompareOVmodels.R")
     
     # Load outputs from the multilevel regression and Bayesian model averaging procedure
-    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV_0.001.gz"))
+    regbma = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_OV_0.gz"))
     
     # Format outputs
     summ_regbma  = da_403_format_regbma2(regbma)
@@ -140,6 +143,16 @@ if(controls$source) { # ignored upon sourcing
     
     # Save point
     save(summ_regbma,summ_all_temp_indirect,file=file.path(controls$savepoint,"summ_bma.Rdata"))
+    
+    # Sensitivity analysis with corrected excess
+    regbma_corr = readRDS(file.path(controls$savepoint,"combined_samples_trun_temperature_corrected_OV_0.001.gz"))
+    summ_regbma_corr  = da_403_format_regbma2(regbma_corr)
+    summ_all_temp_indirect_corr = da_204_summarise_indirect(merg,regbma_corr)
+    
+    # Save point
+    save(summ_regbma,summ_all_temp_indirect,summ_regbma_corr,summ_all_temp_indirect_corr,file=file.path(controls$savepoint,"summ_bma.Rdata"))
+    
+    
   }
   
   # Block 8: load outputs ----

@@ -33,9 +33,9 @@ da_104_get_excess <- function(dat) {
     curr = dat2 %>% 
       dplyr::filter(week_nb==i) %>% 
       dplyr::mutate(cumulative_excess = cumu,
-                    shaved_pop=population - cumulative_excess,
-                    corr_exp_deaths=mortality_rate * shaved_pop,
-                    corr_excess=deaths - corr_exp_deaths)
+                    shaved_pop = population - cumulative_excess,
+                    corr_exp_deaths = mortality_rate * shaved_pop,
+                    corr_excess = deaths - corr_exp_deaths)
     cumu = cumu + dplyr::pull(curr,corr_excess)
     dat3[[i]] = curr
     print(i)
@@ -43,6 +43,35 @@ da_104_get_excess <- function(dat) {
   
   dat4 = data.table::rbindlist(dat3) %>% 
     as_tibble()
+  
+  if(FALSE) {
+    dat4 %>% 
+      dplyr::filter(canton_name=="Bern / Berne",
+             age_group=="80+",
+             sex=="male",
+             it_exp==1) %>% 
+      ggplot() +
+      geom_line(aes(x=week,y=population,colour=factor(it_pop))) +
+      geom_line(aes(x=week,y=shaved_pop,colour=factor(it_pop)),linetype=2)
+    
+    dat4 %>% 
+      dplyr::filter(canton_name=="Bern / Berne",
+                    age_group=="80+",
+                    sex=="female",
+                    it_exp==1) %>% 
+      ggplot() +
+      geom_line(aes(x=week,y=exp_deaths,colour=factor(it_pop))) +
+      geom_line(aes(x=week,y=corr_exp_deaths,colour=factor(it_pop)),linetype=2)
+    
+    dat4 %>% 
+      dplyr::filter(canton_name=="Bern / Berne",
+                    age_group=="80+",
+                    sex=="female",
+                    it_exp==1) %>% 
+      ggplot() +
+      geom_line(aes(x=week,y=excess,colour=factor(it_pop))) +
+      geom_line(aes(x=week,y=corr_excess,colour=factor(it_pop)),linetype=2)
+  }
   
   return(dat4)
 }
