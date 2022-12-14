@@ -14,11 +14,9 @@ da_405_format_beta <- function(x,select_group=NULL,select_beta=NULL,trans="",dig
     unit = "%"
   }
   if(trans=="1-") {
-    x = x %>% dplyr::mutate(beta_med=(1-beta_med)*100,
-                            x = beta_lb,
-                            beta_lb=(1-beta_ub)*100,
-                            beta_ub=(1-x)*100) %>% 
-      dplyr::select(-x)
+    x = x %>% dplyr::mutate(beta_med=(beta_med-1)*100,
+                            beta_lb=(beta_lb-1)*100,
+                            beta_ub=(beta_ub-1)*100)
     unit = "%"
   }
   if(trans=="1/") {
