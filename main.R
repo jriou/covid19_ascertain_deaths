@@ -5,11 +5,11 @@
 # controls
 end_date = as.Date("2022-06-15")
 controls = list(source=TRUE,
-                compute_sample=FALSE,
+                compute_sample=TRUE,
                 update_bag_data=FALSE,
-                merge_samples_bag_data=FALSE,
-                summarise_merg=FALSE,
-                compute_glm=FALSE,
+                merge_samples_bag_data=TRUE,
+                summarise_merg=TRUE,
+                compute_glm=TRUE,
                 get_outputs=TRUE,
                 savepoint=paste0("savepoint_",end_date))
 
@@ -27,9 +27,9 @@ if(controls$source) { # ignored upon sourcing
   if(controls$update_bag_data) {
     labd = da_002_load_lab_deaths()
     labd = da_102_clean_lab_deaths(labd)
-    saveRDS(labd,file=file.path(controls$savepoint,"labd.rds"))
+    saveRDS(labd,file="data/labd.rds")
   } else {
-    labd = readRDS(file.path(controls$savepoint,"labd.rds"))
+    labd = readRDS("data/labd.rds")
   }
   
   # Block 2: samples of expected deaths from historical trends ----

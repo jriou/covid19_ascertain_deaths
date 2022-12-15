@@ -3,7 +3,9 @@
 /municipality_downscale/
 
 # Data
-/savepoint/*
+/savepoint_2022-04-19/*
+/savepoint_2022-06-02/*
+/savepoint_2022-06-15/merged_samples.rds
 /savepoint*/*
 /sensitive/*
 /samples/*
